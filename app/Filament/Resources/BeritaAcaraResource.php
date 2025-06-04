@@ -40,6 +40,10 @@ use Saade\FilamentAutograph\Forms\Components\SignaturePad;
 
 class BeritaAcaraResource extends Resource
 {
+    public static function getNavigationLabel(): string
+    {
+        return 'Formulir BAPP';
+    }
     protected static ?string $model = BeritaAcara::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-folder';

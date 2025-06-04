@@ -28,6 +28,10 @@ return [
 
     ],
 
+    'guard_names' => [
+        'web',
+    ],
+
     'table_names' => [
 
         /*
