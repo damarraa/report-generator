@@ -833,7 +833,7 @@ class BeritaAcaraResource extends Resource
                         if ($lat !== null && $lng !== null) {
                             $set('latitude', $lat);
                             $set('longitude', $lng);
-                            $set('titik_koordinat', ['lat' => $lat, 'lng' => $lng]); // Format konsisten
+                            $set('titik_koordinat', ['lat' => $lat, 'lng' => $lng]);
                         }
                     })
                     ->extraAttributes([
@@ -841,7 +841,8 @@ class BeritaAcaraResource extends Resource
                         'x-data' => '{}',
                         '@location-updated.window' => '
                                         if (!window.mapInstance) return;
-                                            mapInstance.setView([$event.detail.lat, $event.detail.lng], 18); // Zoom lebih dekat
+                                            mapInstance.setView([$event.detail.lat, $event.detail.lng], 18);
+
                                             if (!window.mapMarker) {
                                                 window.mapMarker = L.marker([$event.detail.lat, $event.detail.lng], {
                                                 draggable: true,
@@ -860,7 +861,34 @@ class BeritaAcaraResource extends Resource
                                         }
                                             // Update popup dengan info akurasi jika ada
                                         const accuracy = $event.detail.accuracy ? `Akurasi: ~${Math.round($event.detail.accuracy)} meter` : "";
-                                        window.mapMarker.bindPopup(`Lokasi pekerjaan<br>${accuracy}`).openPopup();'
+                                        window.mapMarker.bindPopup(`Lokasi pekerjaan<br>${accuracy}`).openPopup();',
+
+                        // Tangani saat inputan lat/lng diubah manual
+                        '@input-updated.window' => '
+                                        if (!window.mapInstance) return;
+                                        const lat = $event.detail.lat;
+                                        const lng = $event.detail.lng;
+                                        
+                                        if (!lat || !lng) return;
+                                        mapInstance.setView([lat, lng], 18);
+                                        
+                                        if (!window.mapMarker) {
+                                            window.mapMarker = L.marker([lat, lng], {
+                                            draggable: true,
+                                            autoPan: true,
+                                            icon: L.divIcon({className: "custom-marker", html: "📍"})
+                                            }).addTo(mapInstance);
+
+                                            window.mapMarker.on("dragend", function(e) {
+                                            const newPos = e.target.getLatLng();
+                                            $wire.set("latitude", newPos.lat);
+                                            $wire.set("longitude", newPos.lng);
+                                            $wire.set("titik_koordinat", [newPos.lat, newPos.lng]);
+                                        });
+                                        
+                                        } else {
+                                         window.mapMarker.setLatLng([lat, lng]);
+                                        }',
                     ]),
 
                 Grid::make(2)
@@ -873,6 +901,15 @@ class BeritaAcaraResource extends Resource
                             ->afterStateUpdated(function ($state, $set, $get) {
                                 if (is_numeric($state) && is_numeric($get('longitude'))) {
                                     $set('titik_koordinat', [$state, $get('longitude')]);
+
+                                    // Dispatch even agar map update marker
+                                    echo <<<SCRIPT
+                                        <script>
+                                            window.dispatchEvent(new CustomEvent('input-updated', {
+                                                detail: { lat: {$state}, lng: {$get('longitude')} }
+                                            }));
+                                        </script>
+                                    SCRIPT;
                                 }
                             })
                             ->extraAttributes(['id' => 'latitude-field']),
@@ -885,6 +922,14 @@ class BeritaAcaraResource extends Resource
                             ->afterStateUpdated(function ($state, $set, $get) {
                                 if (is_numeric($get('latitude')) && is_numeric($state)) {
                                     $set('titik_koordinat', [$get('latitude'), $state]);
+
+                                    echo <<<SCRIPT
+                                    <script>
+                                        window.dispatchEvent(new CustomEvent('input-updated', {
+                                            detail: { lat: {$get('latitude')}, lng: {$state} }
+                                        }));
+                                    </script>
+                                SCRIPT;
                                 }
                             })
                             ->extraAttributes(['id' => 'longitude-field']),
