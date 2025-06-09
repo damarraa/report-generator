@@ -12,10 +12,8 @@
             line-height: 1.1;
         }
 
-        /* Header */
         .header-container {
             text-align: center;
-            /* Untuk menengahkan konten di dalam header */
             margin-bottom: 5px;
         }
 
@@ -24,14 +22,12 @@
             height: auto;
             max-height: 60px;
             display: block;
-            /* Agar gambar tidak memiliki spasi di bawahnya */
         }
 
         .smk3-logo {
             height: 50px;
             display: block;
             margin: 0 auto;
-            /* Menengahkan logo SMK3 jika di dalam div terpisah */
         }
 
         .title-section {
@@ -53,14 +49,12 @@
             font-size: 10px;
         }
 
-        /* Section umum */
         .section {
             border: 1px solid black;
             padding: 5px;
             margin-top: 5px;
         }
 
-        /* Baris dan Kolom menggunakan tabel */
         .row-table {
             width: 100%;
             border-collapse: collapse;
@@ -70,9 +64,7 @@
         .row-table td {
             padding: 1px;
             vertical-align: top;
-            /* Agar konten rata atas */
             font-size: 10px;
-            /* Atur ukuran font default untuk sel tabel */
         }
 
         .col-2 {
@@ -83,7 +75,6 @@
             width: 60%;
         }
 
-        /* Kotak Centang dan Input */
         .box {
             display: inline-block;
             width: 10px;
@@ -107,7 +98,6 @@
             width: 50px;
         }
 
-        /* Tabel Data */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -116,13 +106,11 @@
 
         td,
         th {
-            /* border: 1px solid black; */
             padding: 2px;
             text-align: left;
             font-size: 9px;
         }
 
-        /* Tanda Tangan */
         .signature-table {
             width: 100%;
             border-collapse: collapse;
@@ -131,12 +119,10 @@
 
         .signature-table td {
             width: 33%;
-            /* Bagi rata 3 kolom */
             text-align: center;
             font-size: 9px;
             padding: 0;
             border: none;
-            /* Hilangkan border pada sel tanda tangan */
         }
 
         .lined-input {
@@ -147,7 +133,6 @@
             margin-top: 5px;
         }
 
-        /* Catatan */
         .note {
             font-size: 8px;
             margin-top: 8px;
@@ -209,7 +194,7 @@
             <tr>
                 <td class="col-2">4. PENYULANG & ARAH GARDU</td>
                 <td>:</td>
-                <td class="col-3">{{ $record->penyulang->penyulang_gardu }} & {{ $record->arah_gardu }}</td>
+                <td class="col-3">{{ $record->penyulang->penyulang_gardu }} Arah Gardu {{ $record->arah_gardu }}</td>
             </tr>
             <tr>
                 <td class="col-2">5. LOKASI PEKERJAAN</td>
@@ -219,67 +204,49 @@
             <tr>
                 <td class="col-2">6. GALIAN & PERBAIKAN</td>
                 <td>:</td>
-                {{-- <td class="col-3">
-                    <table class="row-table" style="margin-bottom: 0;">
-                        <tr>
-                            <td style="width: 33%;">
-                                ASPAL <span class="box"></span><br>
-                                BETON <span class="box"></span><br>
-                                LEBAR <input type="text" class="input-50px"> m
-                            </td>
-                            <td style="width: 33%;">
-                                BERM <span class="box"></span><br>
-                                TROTOAR <span class="box"></span><br>
-                                TINGGI <input type="text" class="input-50px"> m
-                            </td>
-                            <td style="width: 33%;">
-                                JUMLAH GALIAN <span class="box"></span><br>
-                                ............. <span class="box"></span><br>
-                                PANJANG <input type="text" class="input-50px"> m
-                            </td>
-                        </tr>
-                    </table>
-                </td> --}}
                 <td class="col-3">
                     <table class="row-table" style="margin-bottom: 0;">
                         <tr>
                             <td style="width: 33%;">
-                                ASPAL <span class="box"
-                                    style="text-align: center; font-size: 14px; line-height: 1; padding: 1px; font-family: DejaVu Sans;">
+                                ASPAL <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->galian_perbaikan['aspal']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span><br>
-                                BETON <span class="box"
-                                    style="text-align: center; font-size: 14px; line-height: 1; padding: 1px; font-family: DejaVu Sans;">
+                                BETON <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->galian_perbaikan['beton']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span><br>
-                                LEBAR <input type="text" class="input-50px"
-                                    value="{{ $record->galian_perbaikan['lebar'] ?? '' }}"> m
+                                LEBAR <span style="display: inline-block; width: 50px; text-align: center;">
+                                    {{ $record->galian_perbaikan['lebar'] ?? '' }} m
+                                </span>
                             </td>
                             <td style="width: 33%;">
-                                BERM <span class="box"
-                                    style="text-align: center; font-size: 14px; line-height: 1; padding: 1px; font-family: DejaVu Sans;">
+                                BERM <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->galian_perbaikan['berm']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span><br>
-                                TROTOAR <span class="box"
-                                    style="text-align: center; font-size: 14px; line-height: 1; padding: 1px; font-family: DejaVu Sans;">
+                                TROTOAR <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->galian_perbaikan['trotoar']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span><br>
-                                TINGGI <input type="text" class="input-50px"
-                                    value="{{ $record->galian_perbaikan['tinggi'] ?? '' }}"> m
+                                TINGGI <span style="display: inline-block; width: 50px; text-align: center;">
+                                    {{ $record->galian_perbaikan['tinggi'] ?? '' }} m
+                                </span>
                             </td>
                             <td style="width: 33%;">
                                 JUMLAH GALIAN: {{ $record->galian_perbaikan['jumlah_galian'] ?? '.....' }} <br>
                                 <br>
-                                PANJANG <input type="text" class="input-50px"
-                                    value="{{ $record->galian_perbaikan['panjang'] ?? '' }}"> m
+                                PANJANG <span style="display: inline-block; width: 50px; text-align: center;">
+                                    {{ $record->galian_perbaikan['panjang'] ?? '' }} m
+                                </span>
                             </td>
                         </tr>
                     </table>
@@ -291,19 +258,23 @@
                 <td class="col-3">
                     <table class="row-table" style="margin-bottom: 0;">
                         <tr>
-                            <td style="width: 33%;">KABEL
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td style="width: 33%;">
+                                KABEL
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->gangguan['kabel']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td style="width: 33%;">SAMBUNGAN
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td style="width: 33%;">
+                                SAMBUNGAN
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->gangguan['sambungan']))
-                                        ✔
+                                        &#10004;
                                     @endif
-                                </span>
+                                </span><br>
                             </td>
                             <td style="width: 33%;">MERK {{ $record->gangguan['merk'] ?? '.....' }}
                             </td>
@@ -317,54 +288,68 @@
                 <td class="col-3">
                     <table class="row-table" style="margin-bottom: 0;">
                         <tr>
-                            <td>1. 1 kV
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                1. 1 kV
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_gangguan['tegangan_1kv']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td>7,2 kV
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                7,2 kV
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_gangguan['tegangan_7c2kv']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td>17,5 kV
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                17,5 kV
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_gangguan['tegangan_17c5kv']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td>24 kV
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                24 kV
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_gangguan['tegangan_24kv']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td>36 kV
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                36 kV
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_gangguan['tegangan_36kv']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
                         </tr>
                         <tr>
-                            <td>2. XLPE
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                2. XLPE
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_gangguan['jenis_isolasi_xlpe']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td>PILC
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                PILC
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_gangguan['jenis_isolasi_pilc']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
@@ -373,24 +358,30 @@
                             <td></td>
                         </tr>
                         <tr>
-                            <td>3. 1 C
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                3. 1 C
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_gangguan['inti_kabel_1c']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td>3 C
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                3 C
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_gangguan['inti_kabel_3c']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td>{{ $record->cek_fisik_kabel_gangguan['inti_kabel_3c'] ?? '..............' }}
-                                <span class="box" style="font-family: DejaVu Sans;">
-                                    @if (!empty($record->cek_fisik_kabel_gangguan['inti_kabel_3c']))
-                                        ✔
+                            <td>
+                                {{ $record->cek_fisik_kabel_gangguan['inti_kabel'] ?? '..............' }}
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
+                                    @if (!empty($record->cek_fisik_kabel_gangguan['inti_kabel']))
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
@@ -398,29 +389,41 @@
                             <td></td>
                         </tr>
                         <tr>
-                            <td>4. 150 mm<sup>2</sup>
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                4. 150 mm <sup>2</sup>
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_gangguan['ukuran_kabel_150']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td>240 mm<sup>2</sup>
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                240 mm <sup>2</sup>
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_gangguan['ukuran_kabel_240']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td>300 mm<sup>2</sup>
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                300 mm <sup>2</sup>
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_gangguan['ukuran_kabel_300']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td>{{ $record->cek_fisik_kabel_gangguan['ukuran_kabel'] ?? '...........' }}
-                                <span class="box"></span>
+                            <td>
+                                {{ $record->cek_fisik_kabel_gangguan['ukuran_kabel'] ?? '..............' }}
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
+                                    @if (!empty($record->cek_fisik_kabel_gangguan['ukuran_kabel']))
+                                        &#10004;
+                                    @endif
+                                </span>
                             </td>
                             <td></td>
                         </tr>
@@ -431,11 +434,14 @@
                 <td class="col-2">9. CEK TAHANAN ISOLASI AWAL</td>
                 <td>:</td>
                 <td class="col-3">
-                    R <input type="text" value="{{ $record->cek_tahanan_isolasi_awal['r'] ?? '' }}"> Ohm
+                    R <input type="text" value="{{ $record->cek_tahanan_isolasi_awal['r'] ?? '' }}"
+                        style="text-align: center;"> Ohm
                     &nbsp;&nbsp;
-                    S <input type="text" value="{{ $record->cek_tahanan_isolasi_awal['s'] ?? '' }}"> Ohm
+                    S <input type="text" value="{{ $record->cek_tahanan_isolasi_awal['s'] ?? '' }}"
+                        style="text-align: center;"> Ohm
                     &nbsp;&nbsp;
-                    T <input type="text" value="{{ $record->cek_tahanan_isolasi_awal['t'] ?? '' }}"> Ohm
+                    T <input type="text" value="{{ $record->cek_tahanan_isolasi_awal['t'] ?? '' }}"
+                        style="text-align: center;"> Ohm
                 </td>
             </tr>
             <tr>
@@ -444,54 +450,68 @@
                 <td class="col-3">
                     <table class="row-table" style="margin-bottom: 0;">
                         <tr>
-                            <td>1. 1 kV
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                1. 1 kV
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_tambahan['tegangan_1kv']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td>7,2 kV
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                7,2 kV
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_tambahan['tegangan_7c2kv']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td>17,5 kV
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                17,5 kV
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_tambahan['tegangan_17c5kv']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td>24 kV
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                24 kV
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_tambahan['tegangan_24kv']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td>36 kV
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                36 kV
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_tambahan['tegangan_36kv']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
                         </tr>
                         <tr>
-                            <td>2. XLPE
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                2. XLPE
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_tambahan['jenis_isolasi_xlpe']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td>PILC
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                PILC
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_tambahan['jenis_isolasi_pilc']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
@@ -500,24 +520,30 @@
                             <td></td>
                         </tr>
                         <tr>
-                            <td>3. 1 C
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                3. 1 C
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_tambahan['inti_kabel_1c']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td>3 C
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                3 C
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_tambahan['inti_kabel_3c']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td>{{ $record->cek_fisik_kabel_tambahan['inti_kabel_3c'] ?? '..............' }}
-                                <span class="box" style="font-family: DejaVu Sans;">
-                                    @if (!empty($record->cek_fisik_kabel_tambahan['inti_kabel_3c']))
-                                        ✔
+                            <td>
+                                {{ $record->cek_fisik_kabel_tambahan['inti_kabel'] ?? '..............' }}
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
+                                    @if (!empty($record->cek_fisik_kabel_tambahan['inti_kabel']))
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
@@ -525,31 +551,39 @@
                             <td></td>
                         </tr>
                         <tr>
-                            <td>4. 150 mm<sup>2</sup>
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                4. 150 mm <sup>2</sup>
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_tambahan['ukuran_kabel_150']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td>240 mm<sup>2</sup>
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                240 mm <sup>2</sup>
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_tambahan['ukuran_kabel_240']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td>300 mm<sup>2</sup>
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                300 mm <sup>2</sup>
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_tambahan['ukuran_kabel_300']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td>{{ $record->cek_fisik_kabel_tambahan['ukuran_kabel'] ?? '...........' }}
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                {{ $record->cek_fisik_kabel_tambahan['ukuran_kabel'] ?? '..............' }}
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->cek_fisik_kabel_tambahan['ukuran_kabel']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
@@ -564,24 +598,20 @@
                 <td class="col-3">
                     <table class="row-table" style="margin-bottom: 0;">
                         <tr>
-                            <td style="width: 40%;"><b>NAMA MATERIAL</b></td>
-                            <td style="width: 30%;"><b>SERIAL NUMBER</b></td>
-                            <td style="width: 30%;"><b>KONDUKTOR</b></td>
+                            <td style="width: 40%;">NAMA MATERIAL</td>
+                            <td style="width: 30%;">SERIAL NUMBER</td>
+                            <td style="width: 30%;">KONDUKTOR</td>
                         </tr>
 
                         @php
-                            // Pastikan $record->material adalah array. Jika null, jadikan array kosong.
-                            // Ini penting jika casting 'material' => 'array' sudah ada di model,
-                            // maka $record->material sudah menjadi array.
                             $materials = $record->material ?? [];
-                            $totalRowsToDisplay = 5; // Jumlah baris yang ingin selalu ditampilkan
+                            $totalRowsToDisplay = 5;
                         @endphp
 
                         @for ($i = 0; $i < $totalRowsToDisplay; $i++)
                             <tr>
                                 @if (isset($materials[$i]))
                                     @php
-                                        // Ada data untuk baris ini, ambil itemnya
                                         $item = $materials[$i];
                                     @endphp
                                     <td>{{ $i + 1 }}. {{ $item['nama_material'] ?? '.....' }}</td>
@@ -598,40 +628,18 @@
                     </table>
                 </td>
             </tr>
-            {{-- <tr>
-                <td class="col-2">11. NAMA MATERIAL</td>
-                <td>:</td>
-                <td class="col-3">
-                    <table class="row-table" style="margin-bottom: 0;">
-                        <tr>
-                            <td style="width: 33%;">NAMA MATERIAL</td>
-                            <td style="width: 33%;">SERIAL NUMBER</td>
-                            <td style="width: 33%;">KONDUKTOR</td>
-                        </tr>
-                        <tr>
-                            @forelse ($record->material as $item)
-                        <tr>
-                            <td>{{ $loop->iteration }}. {{ $item['nama_material'] ?? '.....' }}</td>
-                            <td>{{ $item['serial_number'] ?? '.....' }}</td>
-                            <td>{{ $item['konduktor'] ?? '.....' }}</td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td>1. ..............</td>
-                            <td>..............</td>
-                            <td>..............</td>
-                        </tr>
-                        @endforelse
-            </tr> --}}
             <tr>
                 <td class="col-2">12. CEK TAHANAN ISOLASI AKHIR</td>
                 <td>:</td>
                 <td class="col-3">
-                    R <input type="text" value="{{ $record->cek_tahanan_isolasi_akhir['r'] ?? '' }}"> Ohm
+                    R <input type="text" value="{{ $record->cek_tahanan_isolasi_akhir['r'] ?? '' }}"
+                        style="text-align: center;"> Ohm
                     &nbsp;&nbsp;
-                    S <input type="text" value="{{ $record->cek_tahanan_isolasi_akhir['s'] ?? '' }}"> Ohm
+                    S <input type="text" value="{{ $record->cek_tahanan_isolasi_akhir['s'] ?? '' }}"
+                        style="text-align: center;"> Ohm
                     &nbsp;&nbsp;
-                    T <input type="text" value="{{ $record->cek_tahanan_isolasi_akhir['t'] ?? '' }}"> Ohm
+                    T <input type="text" value="{{ $record->cek_tahanan_isolasi_akhir['t'] ?? '' }}"
+                        style="text-align: center;"> Ohm
                 </td>
             </tr>
             <tr>
@@ -640,37 +648,46 @@
                 <td class="col-3">
                     <table class="row-table" style="margin-bottom: 0;">
                         <tr>
-                            <td style="width: 33%;">PENGASPALAN
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td style="width: 33%;">
+                                PENGASPALAN
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->pekerjaan_lain['pengaspalan']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td style="width: 33%;">COR BETON
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td style="width: 33%;">
+                                COR BETON
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->pekerjaan_lain['cor_beton']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td style="width: 33%;">URUG
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td style="width: 33%;">
+                                URUG
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->pekerjaan_lain['urug']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
                         </tr>
                         <tr>
-                            <td>GELAR KABEL
-                                {{ $record->pekerjaan_lain['gelar_kabel'] ?? '.....' }}
+                            <td>
+                                GELAR KABEL
+                                {{ $record->pekerjaan_lain['gelar_kabel'] ?? '.....' }} m
                             </td>
                             <td></td>
-                            <td>SEWA STAMPER
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td>
+                                SEWA STAMPER
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->pekerjaan_lain['sewa_stamper']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
@@ -733,17 +750,21 @@
                 <td class="col-3">
                     <table class="row-table" style="margin-bottom: 0;">
                         <tr>
-                            <td style="width: 33%;">LENGKAP
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td style="width: 33%;">
+                                LENGKAP
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->peralatan_kerja['lengkap']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td style="width: 33%;">TIDAK LENGKAP
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td style="width: 33%;">
+                                TIDAK LENGKAP
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->peralatan_kerja['tidak_lengkap']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
@@ -759,17 +780,21 @@
                 <td class="col-3">
                     <table class="row-table" style="margin-bottom: 0;">
                         <tr>
-                            <td style="width: 33%;">ADA
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td style="width: 33%;">
+                                ADA
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->seragam_kerja['lengkap']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td style="width: 33%;">TIDAK ADA
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td style="width: 33%;">
+                                TIDAK ADA
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->seragam_kerja['tidak_lengkap']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
@@ -784,17 +809,21 @@
                 <td class="col-3">
                     <table class="row-table" style="margin-bottom: 0;">
                         <tr>
-                            <td style="width: 33%;">ADA
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td style="width: 33%;">
+                                ADA
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->peralatan_k2['lengkap']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td style="width: 33%;">TIDAK ADA
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td style="width: 33%;">
+                                TIDAK ADA
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->peralatan_k2['tidak_lengkap']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
@@ -809,17 +838,21 @@
                 <td class="col-3">
                     <table class="row-table" style="margin-bottom: 0;">
                         <tr>
-                            <td style="width: 33%;">ADA
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td style="width: 33%;">
+                                ADA
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->label_timah['lengkap']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
-                            <td style="width: 33%;">TIDAK ADA
-                                <span class="box" style="font-family: DejaVu Sans;">
+                            <td style="width: 33%;">
+                                TIDAK ADA
+                                <span
+                                    style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
                                     @if (!empty($record->label_timah['tidak_lengkap']))
-                                        ✔
+                                        &#10004;
                                     @endif
                                 </span>
                             </td>
@@ -832,7 +865,7 @@
                 <td class="col-2">CATATAN PEKERJAAN</td>
                 <td>:</td>
                 <td class="col-3">
-                    <div style="border: 1px solid #000; height: 60px; margin-top: 3px;">
+                    <div style="border: 1px solid #000; height: 60px; margin-top: 3px; padding: 2px;">
                         {{ $record->catatan_pekerjaan }}
                     </div>
                 </td>
