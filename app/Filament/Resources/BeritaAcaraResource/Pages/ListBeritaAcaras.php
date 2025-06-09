@@ -9,11 +9,12 @@ use Filament\Resources\Pages\ListRecords;
 class ListBeritaAcaras extends ListRecords
 {
     protected static string $resource = BeritaAcaraResource::class;
+    protected static ?string $title = 'Daftar Berita Acara';
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()->label('Tambah Berita Acara'),
         ];
     }
 
