@@ -1,61 +1,55 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 📄 Report Generator - Berita Acara Pemasangan PDF
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Deskripsi
 
-## About Laravel
+**Report Generator** adalah aplikasi web yang dikembangkan untuk membantu petugas lapangan dalam membuat **Berita Acara Pemasangan** dalam bentuk PDF secara cepat dan efisien. Aplikasi ini dibuat atas permintaan perusahaan, guna mendigitalisasi proses pencatatan yang sebelumnya dilakukan secara manual.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Dengan aplikasi ini, petugas hanya perlu login dan mengisi form yang tersedia. Hasil inputan tersebut secara otomatis akan diubah menjadi file PDF yang siap untuk dicetak atau dibagikan.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🎯 Tujuan
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Meningkatkan efisiensi dan akurasi pencatatan laporan pemasangan di lapangan, serta memudahkan proses dokumentasi dan verifikasi oleh pengawas pekerjaan.
 
-## Learning Laravel
+## ✨ Fitur Utama
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- 🔐 **Login Otentikasi**: Petugas dapat login menggunakan username/email dan password yang telah diset oleh Admin.
+- 📝 **Form Input Dinamis**: Formulir pengisian data Berita Acara Pemasangan yang mudah digunakan.
+- 📄 **Otomatisasi PDF**: Data dari form akan secara otomatis di-generate menjadi file PDF sesuai format resmi.
+- 👨‍💼 **Role-Based Access**: Hanya petugas yang memiliki akun yang dapat mengakses dan mengisi form.
+- 📦 **Export Laporan**: PDF dapat langsung diunduh atau dicetak sebagai dokumen resmi.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## 🛠️ Teknologi yang Digunakan
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **Frontend**: HTML, CSS, JavaScript / Blade
+- **Backend**: Laravel 12 / PHP
+- **PDF Generator**: Laravel DOMPDF
+- **Database**: MySQL
 
-## Laravel Sponsors
+## 🚀 Cara Menggunakan
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+1. Akses halaman login di browser.
+2. Masukkan **email/username** dan **password**.
+3. Setelah login berhasil, pilih menu **Create Berita Acara Pemasangan**.
+4. Isi form sesuai kondisi lapangan.
+5. Klik tombol **Generate PDF** untuk membuat dan mengunduh laporan.
 
-### Premium Partners
+## 🔐 Akses Admin
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Admin bertanggung jawab dalam:
+- Membuat dan mengelola akun petugas
+- Melihat data laporan yang telah dibuat
+- Melakukan update jika format PDF mengalami perubahan
 
-## Contributing
+## 📌 Catatan Tambahan
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- Pastikan setiap petugas telah memiliki akun aktif sebelum menggunakan aplikasi.
+- Format PDF dapat disesuaikan berdasarkan permintaan perusahaan.
+- Aplikasi ini dapat dikembangkan lebih lanjut untuk jenis laporan lainnya (mis. perbaikan, pengecekan berkala, dll.)
 
-## Code of Conduct
+## 👨‍💻 Pengembang
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Project ini dikembangkan oleh **E. Andhika Alfira Damara**, freelance programmer yang ditugaskan oleh perusahaan Prisan Artha Lestari dalam rangka digitalisasi proses dokumentasi lapangan.
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Terima kasih telah menggunakan Report Generator! 🎉
