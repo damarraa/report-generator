@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\PermissionResource\Pages;
-use App\Filament\Resources\PermissionResource\RelationManagers;
-use App\Models\Permission;
+use App\Filament\Resources\MaterialResource\Pages;
+use App\Filament\Resources\MaterialResource\RelationManagers;
+use App\Models\Material;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,25 +13,22 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class PermissionResource extends Resource
+class MaterialResource extends Resource
 {
-    protected static ?string $model = \Spatie\Permission\Models\Permission::class;
-    protected static ?string $navigationIcon = 'heroicon-o-key';
-    protected static ?string $navigationLabel = 'Manajemen Hak Akses';
+    protected static ?string $model = Material::class;
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationLabel = 'Manajemen Material';
     protected static ?string $navigationGroup = 'Manajemen Sistem';
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 4;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
+                Forms\Components\TextInput::make('material_name')
+                    ->label('Nama Material')
                     ->required()
-                    ->maxLength(255)
-                    ->unique(ignoreRecord: true),
-                Forms\Components\TextInput::make('guard_name')
-                    ->default('web')
-                    ->required(),
+                    ->maxLength(255),
             ]);
     }
 
@@ -39,13 +36,8 @@ class PermissionResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                Tables\Columns\TextColumn::make('material_name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('guard_name'),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
@@ -71,9 +63,9 @@ class PermissionResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPermissions::route('/'),
-            'create' => Pages\CreatePermission::route('/create'),
-            'edit' => Pages\EditPermission::route('/{record}/edit'),
+            'index' => Pages\ListMaterials::route('/'),
+            'create' => Pages\CreateMaterial::route('/create'),
+            'edit' => Pages\EditMaterial::route('/{record}/edit'),
         ];
     }
 

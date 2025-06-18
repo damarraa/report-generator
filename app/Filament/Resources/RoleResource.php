@@ -18,6 +18,7 @@ class RoleResource extends Resource
 {
     protected static ?string $model = \Spatie\Permission\Models\Role::class;
     protected static ?string $navigationIcon = 'heroicon-o-shield-exclamation';
+    protected static ?string $navigationLabel = 'Manajemen Role';
     protected static ?string $navigationGroup = 'Manajemen Sistem';
     protected static ?int $navigationSort = 2;
 

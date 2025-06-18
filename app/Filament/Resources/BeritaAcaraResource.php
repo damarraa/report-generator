@@ -5,7 +5,9 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\BeritaAcaraResource\Pages;
 use App\Filament\Resources\BeritaAcaraResource\RelationManagers;
 use App\Models\BeritaAcara;
+use App\Models\Material;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Closure;
 use Doctrine\DBAL\Schema\Schema;
 use Dotswan\MapPicker\Fields\Map;
 use Filament\Forms;
@@ -16,11 +18,15 @@ use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Field;
+use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Group;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -29,14 +35,18 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\View;
 use Filament\Forms\Form;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use PhpParser\Node\Stmt\Label;
 use Ramsey\Uuid\Type\Decimal;
 use Saade\FilamentAutograph\Forms\Components\SignaturePad;
+use Spatie\ImageOptimizer\OptimizerChainFactory;
 
 class BeritaAcaraResource extends Resource
 {
@@ -70,10 +80,57 @@ class BeritaAcaraResource extends Resource
                         self::informasiUtamaSection(),
                         // Section Galian & Perbaikan
                         self::galianPerbaikanSection(),
+
+                        // Section Gangguan Pada
+                        self::gangguanSection()
+                            ->hidden(fn(Get $get): bool => !in_array(
+                                $get('pekerjaan'),
+                                [
+                                    'gangguan tanpa tambah kabel',
+                                    'gangguan dengan tambah kabel'
+                                ]
+                            )),
+
+                        // Section Cek Fisik Kabel Gangguan
+                        self::cekFisikKabelSection('cek_fisik_kabel_gangguan', 'Cek Fisik Kabel Gangguan')
+                            ->hidden(fn(Get $get): bool => !in_array(
+                                $get('pekerjaan'),
+                                [
+                                    'gangguan tanpa tambah kabel',
+                                    'gangguan dengan tambah kabel'
+                                ]
+                            )),
+
+                        // Section Cek Tahanan Isolasi Awal
+                        self::cekTahananIsolasiSection('cek_tahanan_isolasi_awal', 'Cek Tahanan Isolasi Awal'),
+
+                        // Section Cek Fisik Kabel Tambahan
+                        self::cekFisikKabelSection('cek_fisik_kabel_tambahan', 'Cek Fisik Kabel Tambahan')
+                            ->hidden(fn(Get $get): bool => !in_array(
+                                $get('pekerjaan'),
+                                [
+                                    'pasang baru',
+                                    'gangguan dengan tambah kabel'
+                                ]
+                            )),
+
+                        // Section Material
+                        self::materialSection(),
+
+                        // Section Cek Tahanan Isolasi Akhir
+                        self::cekTahananIsolasiSection('cek_tahanan_isolasi_akhir', 'Cek Tahanan Isolasi Akhir')
+                            ->hidden(fn(Get $get): bool => !in_array(
+                                $get('pekerjaan'),
+                                [
+                                    'pasang baru',
+                                ]
+                            )),
+
                         // Section Pasang Baru
-                        self::pasangBaruSections(),
+                        // self::pasangBaruSections(),
                         // Section Gangguan Tanpa/Dengan Tambah Kabel
-                        self::gangguanKabelSections(),
+                        // self::gangguanKabelSections(),
+
                         // Section Yang Selalu Tampil
                         self::alwaysVisibleSections(),
 
@@ -136,6 +193,7 @@ class BeritaAcaraResource extends Resource
                     ->action(function ($record) {
                         $record->load([
                             'customer',
+                            'spk',
                             'penyulang',
                             'jointer',
                             'user'
@@ -151,7 +209,12 @@ class BeritaAcaraResource extends Resource
                             $filename
                         );
                     }),
-                Tables\Actions\ViewAction::make(),
+                // Tables\Actions\ViewAction::make(),
+                Tables\Actions\ViewAction::make()
+                    ->modalContent(fn($record) => view('filament.views.image-preview', [
+                        'pengukuran' => $record->getImageUrls('foto_pengukuran'),
+                        'realisasi' => $record->getImageUrls('foto_realisasi')
+                    ])),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -179,80 +242,11 @@ class BeritaAcaraResource extends Resource
         ];
     }
 
-    // Section Pasang Baru
-    protected static function pasangBaruSections(): Section
-    {
-        return Section::make('Informasi Tambahan')
-            ->schema([
-                // Section Cek Tahanan Isolasi Awal
-                self::cekTahananIsolasiSection('cek_tahanan_isolasi_awal', 'Cek Tahanan Isolasi Awal')
-                    ->visible(fn(Get $get): bool => in_array(
-                        $get('pekerjaan'),
-                        [
-                            'pasang baru',
-                            'gangguan tanpa tambah kabel',
-                            'gangguan dengan tambah kabel'
-                        ]
-                    )),
-
-                // Section Cek Fisik Kabel Tambahan
-                self::cekFisikKabelSection('cek_fisik_kabel_tambahan', 'Cek Fisik Kabel Tambahan / Baru')
-                    ->visible(fn(Get $get): bool => in_array(
-                        $get('pekerjaan'),
-                        [
-                            'pasang baru',
-                            'gangguan dengan tambah kabel'
-                        ]
-                    )),
-
-                // Section Material
-                self::materialSection()
-                    ->visible(fn(Get $get): bool => in_array(
-                        $get('pekerjaan'),
-                        [
-                            'pasang baru',
-                            'gangguan tanpa tambah kabel',
-                            'gangguan dengan tambah kabel'
-                        ]
-                    )),
-
-                // Section Cek Tahanan Isolasi Akhir
-                self::cekTahananIsolasiSection('cek_tahanan_isolasi_akhir', 'Cek Tahanan Isolasi Akhir')
-                    ->visible(fn(Get $get): bool => $get('pekerjaan') === 'pasang baru'),
-            ]);
-    }
-
-    // Section Gangguan Tanpa Tambah Kabel
-    protected static function gangguanKabelSections(): Section
-    {
-        return Section::make('Informasi Tambahan')
-            ->schema([
-                // Section Gangguan Pada
-                self::gangguanSection()
-                    ->visible(fn(Get $get): bool => in_array(
-                        $get('pekerjaan'),
-                        [
-                            'gangguan tanpa tambah kabel',
-                            'gangguan dengan tambah kabel'
-                        ]
-                    )),
-
-                // Section Cek Fisik Kabel Gangguan
-                self::cekFisikKabelSection('cek_fisik_kabel_gangguan', 'Cek Fisik Kabel Gangguan')
-                    ->visible(fn(Get $get): bool => in_array(
-                        $get('pekerjaan'),
-                        [
-                            'gangguan tanpa tambah kabel',
-                            'gangguan dengan tambah kabel'
-                        ]
-                    )),
-            ]);
-    }
-
     // Section yang selalu tampil
     protected static function alwaysVisibleSections(): Section
     {
-        return Section::make('Informasi Tambahan')
+        return Section::make('')
+            ->disableLabel()
             ->schema([
                 // Section Pekerjaan Lain-Lain
                 self::pekerjaanLainSection('pekerjaan_lain', 'Pekerjaan Lain-Lain'),
@@ -265,13 +259,6 @@ class BeritaAcaraResource extends Resource
 
                 // Section Pengawasan
                 self::pengawasanSection(),
-
-                // Catatan Pekerjaan
-                Textarea::make('catatan_pekerjaan')
-                    ->label('Catatan Pekerjaan')
-                    ->placeholder('..........')
-                    ->columnSpanFull()
-                    ->rows(3),
 
                 // Section Dokumentasi Foto
                 Section::make('Dokumentasi Foto')
@@ -298,7 +285,6 @@ class BeritaAcaraResource extends Resource
                                     ->label('Tanda Tangan Pengawas')
                                     ->penColor('#000000')
                                     ->backgroundColor('#fafafa')
-                                    ->required()
                                     ->columnSpan(1),
 
                                 SignaturePad::make('signature_pelaksana')
@@ -312,15 +298,13 @@ class BeritaAcaraResource extends Resource
                                     ->label('Tanda Tangan Kontraktor')
                                     ->penColor('#000000')
                                     ->backgroundColor('#fafafa')
-                                    ->required()
                                     ->columnSpan(1)
                             ]),
 
                         Grid::make(3)
                             ->schema([
                                 TextInput::make('nama_pengawas')
-                                    ->label('Nama Pengawas')
-                                    ->required(),
+                                    ->label('Nama Pengawas'),
 
                                 TextInput::make('nama_pelaksana')
                                     ->label('Nama Pelaksana')
@@ -328,10 +312,8 @@ class BeritaAcaraResource extends Resource
 
                                 TextInput::make('nama_kontraktor')
                                     ->label('Nama Kontraktor')
-                                    ->required(),
                             ])
-                    ])
-                    ->collapsible(),
+                    ]),
             ]);
     }
 
@@ -364,8 +346,9 @@ class BeritaAcaraResource extends Resource
                             ->required(),
                     ]),
             ])
-            ->collapsible();
+        ;
     }
+
     // Section Informasi Utama
     protected static function informasiUtamaSection(): Section
     {
@@ -375,22 +358,29 @@ class BeritaAcaraResource extends Resource
                     ->schema([
                         TextInput::make('nomor_bap')
                             ->label('No. Berita Acara Pemasangan')
-                            ->placeholder('No. BAPP')
-                            ->required()
                             ->suffix('/BAPP/PAL')
-                            ->mutateDehydratedStateUsing(function (?string $state): ?string {
-                                // Cek input
-                                if (blank($state)) return null;
+                            ->default(function () {
+                                // Ambil nomor terakhir dari database
+                                $lastNumber = \App\Models\BeritaAcara::max('id') ?? 0;
+                                $incrementedNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
 
-                                // Gabungkan state dengan format
-                                return "{$state}/BAPP/PAL";
+                                // Format lengkap dengan suffix
+                                return "{$incrementedNumber}/BAPP/PAL";
                             })
+                            ->disabled()
+                            ->dehydrated()
                             ->columnSpan(1),
 
-                        TextInput::make('no_spk')
+                        Select::make('spk_id')
                             ->label('No. SPK/SPBJ/PK/WO')
-                            ->placeholder('No. SPK/SPBJ/PK/WO')
+                            ->relationship('spk', 'nomor_spk')
                             ->required()
+                            ->preload()
+                            ->searchable()
+                            ->createOptionForm([
+                                TextInput::make('nomor_spk')
+                                    ->required()
+                            ])
                             ->columnSpan(2),
                     ]),
 
@@ -438,7 +428,7 @@ class BeritaAcaraResource extends Resource
                             ->required(),
                     ]),
             ])
-            ->collapsible();
+        ;
     }
 
     // Section Class
@@ -450,25 +440,47 @@ class BeritaAcaraResource extends Resource
                     ->schema([
                         Group::make()
                             ->schema([
-                                Checkbox::make('galian_perbaikan.aspal')->label('Aspal'),
-                                Checkbox::make('galian_perbaikan.beton')->label('Beton'),
-                                TextInput::make('galian_perbaikan.lebar')
-                                    ->label('Lebar (m)')
-                                    ->placeholder('meter')
-                                    ->numeric()
-                                    ->inputMode('decimal'),
-                            ]),
+                                Placeholder::make('jenis_permukaan')
+                                    ->content('Jenis Permukaan:')
+                                    ->disableLabel()
+                                    ->extraAttributes(['class' => 'font-bold']),
+                                Radio::make('galian_perbaikan.jenis_permukaan')
+                                    ->options([
+                                        'aspal' => 'Aspal',
+                                        'beton' => 'Beton',
+                                        'berm' => 'Berm',
+                                        'trotoar' => 'Trotoar'
+                                    ])
+                                    ->disableLabel()
+                                    ->live()
+                                    ->columnSpanFull(),
+                            ])
+                            ->columnSpan(1),
+
 
                         Group::make()
                             ->schema([
-                                Checkbox::make('galian_perbaikan.berm')->label('Berm'),
-                                Checkbox::make('galian_perbaikan.trotoar')->label('Trotoar'),
-                                TextInput::make('galian_perbaikan.tinggi')
-                                    ->label('Tinggi (m)')
-                                    ->placeholder('meter')
+                                Placeholder::make('dimensi_label')
+                                    ->content('Dimensi Galian:')
+                                    ->disableLabel()
+                                    ->extraAttributes(['class' => 'font-bold']),
+                                TextInput::make('galian_perbaikan.panjang')
+                                    ->label('Panjang (m)')
+                                    ->placeholder('0.00')
                                     ->numeric()
                                     ->inputMode('decimal'),
-                            ]),
+                                TextInput::make('galian_perbaikan.lebar')
+                                    ->label('Lebar (m)')
+                                    ->placeholder('0.00')
+                                    ->numeric()
+                                    ->inputMode('decimal'),
+                                TextInput::make('galian_perbaikan.tinggi')
+                                    ->label('Tinggi (m)')
+                                    ->placeholder('0.00')
+                                    ->numeric()
+                                    ->inputMode('decimal'),
+                            ])
+                            ->columnSpan(1),
 
                         Group::make()
                             ->schema([
@@ -476,15 +488,10 @@ class BeritaAcaraResource extends Resource
                                     ->label('Jumlah Galian')
                                     ->placeholder('Jumlah Galian')
                                     ->disabled(),
-                                TextInput::make('galian_perbaikan.panjang')
-                                    ->label('Panjang (m)')
-                                    ->placeholder('meter')
-                                    ->numeric()
-                                    ->inputMode('decimal'),
-                            ]),
+                            ])
+                            ->columnSpan(1),
                     ]),
-            ])
-            ->collapsible();
+            ]);
     }
 
     protected static function gangguanSection(): Section
@@ -504,7 +511,7 @@ class BeritaAcaraResource extends Resource
                         ])->columnSpan(1),
                     ]),
             ])
-            ->collapsible();
+        ;
     }
 
     protected static function materialSection(): Section
@@ -513,17 +520,20 @@ class BeritaAcaraResource extends Resource
             ->schema([
                 Repeater::make('material')
                     ->schema([
-                        TextInput::make('nama_material')
+                        Select::make('material_name')
                             ->label('Nama Material')
-                            ->placeholder('..........'),
-
-                        TextInput::make('serial_number')
-                            ->label('Serial Number')
-                            ->placeholder('..........'),
-
-                        TextInput::make('konduktor')
-                            ->label('Konduktor')
-                            ->placeholder('..........'),
+                            ->options(Material::pluck('material_name', 'material_name'))
+                            ->searchable()
+                            ->createOptionForm([
+                                TextInput::make('material_name')->required()
+                            ])
+                            ->required(),
+                        TextInput::make('serial_number'),
+                        Select::make('konduktor')
+                            ->options([
+                                'shearbolt' => 'Shearbolt',
+                                'press connector' => 'Press Connector',
+                            ])
                     ])
                     ->columns(3)
                     ->defaultItems(1)
@@ -531,11 +541,10 @@ class BeritaAcaraResource extends Resource
                     ->maxItems(10)
                     ->disableLabel()
                     ->createItemButtonLabel('Tambah Material')
-                    ->collapsible()
+
                     ->cloneable()
                     ->itemLabel(fn(array $state): ?string => $state['nama_material'] ?? null),
-            ])
-            ->collapsible();
+            ]);
     }
 
     protected static function cekFisikKabelSection(string $prefix, string $title): Section
@@ -550,7 +559,7 @@ class BeritaAcaraResource extends Resource
                         self::buildUkuranKabelGroup($prefix),
                     ]),
             ])
-            ->collapsible();
+        ;
     }
 
     protected static function buildTeganganGroup(string $prefix): Group
@@ -561,11 +570,16 @@ class BeritaAcaraResource extends Resource
                     ->content('Tegangan:')
                     ->disableLabel()
                     ->extraAttributes(['class' => 'font-bold']),
-                Checkbox::make("{$prefix}.tegangan_1kv")->label('1 Kv'),
-                Checkbox::make("{$prefix}.tegangan_7c2kv")->label('7,2 Kv'),
-                Checkbox::make("{$prefix}.tegangan_17c5kv")->label('17,5 Kv'),
-                Checkbox::make("{$prefix}.tegangan_24kv")->label('24 Kv'),
-                Checkbox::make("{$prefix}.tegangan_36kv")->label('36 Kv'),
+                Radio::make("{$prefix}.tegangan")
+                    ->options([
+                        'tegangan_1kv' => '1 kV',
+                        'tegangan_7c2kv' => '7,2 kV',
+                        'tegangan_17c5kv' => '17,5 kV',
+                        'tegangan_24kv' => '24 kV',
+                        'tegangan_36kv' => '36 kV'
+                    ])
+                    ->disableLabel()
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -577,8 +591,13 @@ class BeritaAcaraResource extends Resource
                     ->content('Jenis Isolasi:')
                     ->disableLabel()
                     ->extraAttributes(['class' => 'font-bold']),
-                Checkbox::make("{$prefix}.jenis_isolasi_xlpe")->label('XLPE'),
-                Checkbox::make("{$prefix}.jenis_isolasi_pilc")->label('PILC'),
+                Radio::make("{$prefix}.jenis_isolasi")
+                    ->options([
+                        'jenis_isolasi_xlpe' => 'XLPE',
+                        'jenis_isolasi_pilc' => 'PILC'
+                    ])
+                    ->disableLabel()
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -590,11 +609,24 @@ class BeritaAcaraResource extends Resource
                     ->content('Inti Kabel:')
                     ->disableLabel()
                     ->extraAttributes(['class' => 'font-bold']),
-                Checkbox::make("{$prefix}.inti_kabel_1c")->label('1 C'),
-                Checkbox::make("{$prefix}.inti_kabel_3c")->label('3 C'),
-                TextInput::make("{$prefix}.inti_kabel")
+                Radio::make("{$prefix}.inti_kabel")
+                    ->options([
+                        '1c' => '1 C',
+                        '3c' => '3 C',
+                        'lainnya' => 'Lainnya'
+                    ])
+                    ->disableLabel()
+                    ->live()
+                    ->columnSpanFull(),
+                TextInput::make("{$prefix}.inti_kabel_lainnya")
                     ->label('Lainnya')
-                    ->placeholder('C'),
+                    ->placeholder('Jumlah inti kabel C')
+                    ->hidden(function (Get $get) use ($prefix) {
+                        return $get("{$prefix}.inti_kabel") !== 'lainnya';
+                    })
+                    ->required(function (Get $get) use ($prefix) {
+                        return $get("{$prefix}.inti_kabel") === 'lainnya';
+                    }),
             ]);
     }
 
@@ -606,12 +638,25 @@ class BeritaAcaraResource extends Resource
                     ->content('Ukuran Kabel:')
                     ->disableLabel()
                     ->extraAttributes(['class' => 'font-bold']),
-                Checkbox::make("{$prefix}.ukuran_kabel_150")->label('150 mm²'),
-                Checkbox::make("{$prefix}.ukuran_kabel_240")->label('240 mm²'),
-                Checkbox::make("{$prefix}.ukuran_kabel_300")->label('300 mm²'),
-                TextInput::make("{$prefix}.ukuran_kabel")
-                    ->label('Lainnya')
-                    ->placeholder('mm²'),
+                Radio::make("{$prefix}.ukuran_kabel")
+                    ->options([
+                        '150' => '150 mm²',
+                        '240' => '240 mm²',
+                        '300' => '300 mm²',
+                        'lainnya' => 'Lainnya'
+                    ])
+                    ->disableLabel()
+                    ->live()
+                    ->columnSpanFull(),
+                TextInput::make("{$prefix}.ukuran_kabel_lainnya")
+                    ->label('Specify')
+                    ->placeholder('Ukuran kabel dalam mm²')
+                    ->hidden(function (Get $get) use ($prefix) {
+                        return $get("{$prefix}.ukuran_kabel") !== 'lainnya';
+                    })
+                    ->required(function (Get $get) use ($prefix) {
+                        return $get("{$prefix}.ukuran_kabel") === 'lainnya';
+                    }),
             ]);
     }
 
@@ -634,68 +679,8 @@ class BeritaAcaraResource extends Resource
                                 TextInput::make("{$prefix}.t")->label('T')->numeric()->placeholder('MΩ'),
                             ]),
                     ]),
-            ])->collapsible();
+            ]);
     }
-
-    // protected static function cekFisikKabelTambahanSection(string $prefix, string $title): Section
-    // {
-    //     return Section::make($title)
-    //         ->schema([
-    //             Grid::make(4)
-    //                 ->schema([
-    //                     Group::make()
-    //                         ->schema([
-    //                             Placeholder::make('tegangan')
-    //                                 ->content('Tegangan:')
-    //                                 ->disableLabel()
-    //                                 ->extraAttributes(['class' => 'font-bold']),
-    //                             Checkbox::make("{$prefix}.tegangan_1kv")->label('1 Kv'),
-    //                             Checkbox::make("{$prefix}.tegangan_7c2kv")->label('7,2 Kv'),
-    //                             Checkbox::make("{$prefix}.tegangan_17c5kv")->label('17,5 Kv'),
-    //                             Checkbox::make("{$prefix}.tegangan_24kv")->label('24 Kv'),
-    //                             Checkbox::make("{$prefix}.tegangan_36kv")->label('36 Kv'),
-    //                         ]),
-
-    //                     Group::make()
-    //                         ->schema([
-    //                             Placeholder::make('jenis_isolasi')
-    //                                 ->content('Jenis Isolasi:')
-    //                                 ->disableLabel()
-    //                                 ->extraAttributes(['class' => 'font-bold']),
-    //                             Checkbox::make("{$prefix}.jenis_isolasi_xlpe")->label('XLPE'),
-    //                             Checkbox::make("{$prefix}.jenis_isolasi_pilc")->label('PILC'),
-    //                         ]),
-
-    //                     Group::make()
-    //                         ->schema([
-    //                             Placeholder::make('inti_kabel')
-    //                                 ->content('Inti Kabel:')
-    //                                 ->disableLabel()
-    //                                 ->extraAttributes(['class' => 'font-bold']),
-    //                             Checkbox::make("{$prefix}.inti_kabel_1c")->label('1 C'),
-    //                             Checkbox::make("{$prefix}.inti_kabel_3c")->label('3 C'),
-    //                             TextInput::make("{$prefix}.inti_kabel")
-    //                                 ->label('Lainnya')
-    //                                 ->placeholder('C'),
-    //                         ]),
-
-    //                     Group::make()
-    //                         ->schema([
-    //                             Placeholder::make('ukuran_kabel')
-    //                                 ->content('Ukuran Kabel:')
-    //                                 ->disableLabel()
-    //                                 ->extraAttributes(['class' => 'font-bold']),
-    //                             Checkbox::make("{$prefix}.ukuran_kabel_150")->label('150 mm²'),
-    //                             Checkbox::make("{$prefix}.ukuran_kabel_240")->label('240 mm²'),
-    //                             Checkbox::make("{$prefix}.ukuran_kabel_300")->label('300 mm²'),
-    //                             TextInput::make("{$prefix}.ukuran_kabel")
-    //                                 ->label('Lainnya')
-    //                                 ->placeholder('mm²'),
-    //                         ]),
-    //                 ]),
-    //         ])
-    //         ->collapsible();
-    // }
 
     protected static function cekTahananIsolasiAkhirSection(string $prefix, string $title): Section
     {
@@ -716,7 +701,7 @@ class BeritaAcaraResource extends Resource
                                 TextInput::make("{$prefix}.t")->label('T')->numeric()->placeholder('MΩ'),
                             ]),
                     ]),
-            ])->collapsible();
+            ]);
     }
 
     protected static function pekerjaanLainSection(string $prefix, string $title): Section
@@ -750,7 +735,7 @@ class BeritaAcaraResource extends Resource
                                     ->inputMode('decimal'),
                             ]),
                     ]),
-            ])->collapsible();
+            ]);
     }
 
     protected static function jointerPelaksanaSection(): Section
@@ -811,7 +796,7 @@ class BeritaAcaraResource extends Resource
                                     ->required(),
                             ]),
                     ]),
-            ])->collapsible();
+            ]);
     }
 
     protected static function titikKoordinatSection(): Section
@@ -820,6 +805,7 @@ class BeritaAcaraResource extends Resource
             ->schema([
                 Map::make('titik_koordinat')
                     ->label('Peta Lokasi Pekerjaan')
+                    ->lazy()
                     ->defaultLocation(0.510440, 101.438309)
                     ->required()
                     ->columnSpanFull()
@@ -953,7 +939,7 @@ class BeritaAcaraResource extends Resource
                         'class' => 'text-sm text-red-600 mt-2'
                     ]),
             ])
-            ->collapsible();
+        ;
     }
 
     protected static function pengawasanSection(): Section
@@ -1009,8 +995,15 @@ class BeritaAcaraResource extends Resource
                     'Label Timah/Penang',
                     'Catatan Label Timah'
                 ),
+
+                // Catatan Pekerjaan
+                Textarea::make('catatan_pekerjaan')
+                    ->label('Catatan Pekerjaan')
+                    ->placeholder('..........')
+                    ->columnSpanFull()
+                    ->rows(3),
             ])
-            ->collapsible();
+        ;
     }
 
     protected static function pengawasanChecklist(string $field, string $title, string $noteLabel): Group
@@ -1020,15 +1013,37 @@ class BeritaAcaraResource extends Resource
                 Placeholder::make("{$field}_label")
                     ->content($title . ':')
                     ->disableLabel()
-                    ->extraAttributes(['class' => 'font-bold']),
+                    ->extraAttributes(['class' => 'font-bold'])
+                    ->columnSpanFull(),
 
-                Checkbox::make("{$field}.lengkap")
-                    ->label('Lengkap/Ada')
-                    ->inline(),
+                // Radio button custom
+                Fieldset::make()
+                    ->schema([
+                        Radio::make("{$field}_radio")
+                            ->options([
+                                'lengkap' => 'Lengkap/Ada',
+                                'tidak_lengkap' => 'Tidak Lengkap/Tidak Ada',
+                            ])
+                            ->live()
+                            ->afterStateUpdated(function ($state, Set $set) use ($field) {
+                                $set("{$field}.lengkap", $state === 'lengkap');
+                                if ($state === 'lengkap') {
+                                    $set("{$field}.catatan", 'Lengkap sesuai persyaratan.');
+                                } else {
+                                    $set("{$field}.catatan", '');
+                                }
+                                $set("{$field}.tidak_lengkap", $state === 'tidak_lengkap');
+                            })
+                            ->disableLabel()
+                            ->inline()
+                            ->columns(2),
+                    ])
+                    ->columnSpanFull()
+                    ->extraAttributes(['style' => 'padding: 0; border: none;']),
 
-                Checkbox::make("{$field}.tidak_lengkap")
-                    ->label('Tidak Lengkap/Tidak Ada')
-                    ->inline(),
+                // Hidden fields untuk menyimpan nilai
+                Hidden::make("{$field}.lengkap"),
+                Hidden::make("{$field}.tidak_lengkap"),
 
                 Textarea::make("{$field}.catatan")
                     ->label($noteLabel)
@@ -1051,8 +1066,29 @@ class BeritaAcaraResource extends Resource
             ->downloadable()
             ->reorderable()
             ->appendFiles()
-            ->lazy()
-            ->previewable()
-            ->preserveFilenames();
+            ->previewable(true)
+            ->preserveFilenames()
+            ->disk('public')
+            ->visibility('public')
+            ->getUploadedFileNameForStorageUsing(
+                fn(TemporaryUploadedFile $file): string => self::optimizeAndStoreImage($file)
+            );
+    }
+
+    private static function optimizeAndStoreImage(TemporaryUploadedFile $file): string
+    {
+        $path = $file->getRealPath();
+
+        // Optimize image first
+        $optimizerChain = OptimizerChainFactory::create();
+        $optimizerChain->optimize($path);
+
+        // Generate unique filename
+        $filename = 'bap/' . md5_file($path) . '.' . $file->getClientOriginalExtension();
+
+        // Store to public disk
+        Storage::disk('public')->put($filename, file_get_contents($path));
+
+        return $filename;
     }
 }

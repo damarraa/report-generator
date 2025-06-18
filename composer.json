@@ -12,12 +12,15 @@
         "filament/filament": "3.3",
         "filament/widgets": "^3.3",
         "flowframe/laravel-trend": "^0.4.0",
+        "joshembling/image-optimizer": "^1.6",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "saade/filament-autograph": "^3.2",
+        "spatie/image-optimizer": "^1.8",
         "spatie/laravel-permission": "^6.19"
     },
     "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.15",
         "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.13",

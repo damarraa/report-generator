@@ -1,4 +1,5 @@
-import initGeolocation from "../filament/geolocation";
+// import initGeolocation from "../filament/geolocation";
+import initGeolocation from "../geolocation";
 
 export default function () {
     // Initialize only if we're on the berita acara form page

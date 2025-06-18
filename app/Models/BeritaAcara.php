@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class BeritaAcara extends Model
 {
     use HasFactory;
 
     protected $table = 'berita_acaras';
+    protected $with = ['customer', 'material', 'spk', 'penyulang', 'jointer', 'user'];
 
     protected $fillable = [
         'nomor_bap',
@@ -47,6 +49,8 @@ class BeritaAcara extends Model
         'signature_kontraktor',
         'nama_kontraktor',
         'customer_id',
+        'spk_id',
+        'material_id',
         'penyulang_id',
         'jointer_id',
         'user_id'
@@ -72,6 +76,15 @@ class BeritaAcara extends Model
         'foto_realisasi' => 'array'
     ];
 
+    // Helper untuk mendapatkan URL lengkap
+    public function getImageUrls(string $attribute): array
+    {
+        return collect($this->$attribute)
+            ->map(fn($file) => Storage::url($file))
+            ->filter()
+            ->toArray();
+    }
+
     public function customer()
     {
         return $this->belongsTo(Customer::class);
@@ -80,6 +93,16 @@ class BeritaAcara extends Model
     public function penyulang()
     {
         return $this->belongsTo(Penyulang::class);
+    }
+
+    public function material()
+    {
+        return $this->belongsTo(Material::class);
+    }
+
+    public function spk()
+    {
+        return $this->belongsTo(SPK::class, 'spk_id');
     }
 
     public function leader()
