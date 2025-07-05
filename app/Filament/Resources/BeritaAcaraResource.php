@@ -35,18 +35,20 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\View;
 use Filament\Forms\Form;
+use App\Forms\Components\MapPicker;
+use Filament\Forms\Components\Component;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Support\RawJs;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
-use PhpParser\Node\Stmt\Label;
-use Ramsey\Uuid\Type\Decimal;
 use Saade\FilamentAutograph\Forms\Components\SignaturePad;
 use Spatie\ImageOptimizer\OptimizerChainFactory;
+use Filament\Forms\Components\DatePicker;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Arr;
 
 class BeritaAcaraResource extends Resource
 {
@@ -126,11 +128,6 @@ class BeritaAcaraResource extends Resource
                                 ]
                             )),
 
-                        // Section Pasang Baru
-                        // self::pasangBaruSections(),
-                        // Section Gangguan Tanpa/Dengan Tambah Kabel
-                        // self::gangguanKabelSections(),
-
                         // Section Yang Selalu Tampil
                         self::alwaysVisibleSections(),
 
@@ -140,6 +137,37 @@ class BeritaAcaraResource extends Resource
                     ->columnSpanFull(),
             ]);
     }
+
+    // public static function infolist(Infolist $infolist): Infolist
+    // {
+    //     return $infolist
+    //         ->schema([
+    //             InfolistSection::make('Dokumentasi Foto')
+    //                 ->schema([
+    //                     RepeatableEntry::make('foto_pengukuran')
+    //                         ->label('Foto Pengukuran')
+    //                         ->schema([
+    //                             ImageEntry::make('self')
+    //                                 ->label(false)
+    //                                 ->disk('public')
+    //                                 ->height(200)
+    //                                 ->columnSpanFull(),
+    //                         ])->columns(4),
+
+    //                     RepeatableEntry::make('foto_realisasi')
+    //                         ->label('Foto Realisasi')
+    //                         ->schema([
+    //                             ImageEntry::make('self')
+    //                                 ->label(false)
+    //                                 ->disk('public')
+    //                                 ->height(200)
+    //                                 ->columnSpanFull(),
+    //                         ])->columns(4),
+    //                 ])->collapsible(),
+
+    //             // Tambahkan field lain jika ingin ditampilkan di halaman View
+    //         ]);
+    // }
 
     public static function table(Table $table): Table
     {
@@ -209,12 +237,7 @@ class BeritaAcaraResource extends Resource
                             $filename
                         );
                     }),
-                // Tables\Actions\ViewAction::make(),
-                Tables\Actions\ViewAction::make()
-                    ->modalContent(fn($record) => view('filament.views.image-preview', [
-                        'pengukuran' => $record->getImageUrls('foto_pengukuran'),
-                        'realisasi' => $record->getImageUrls('foto_realisasi')
-                    ])),
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -242,7 +265,7 @@ class BeritaAcaraResource extends Resource
         ];
     }
 
-    // Section yang selalu tampil
+    // Section yang selalu tampil updated
     protected static function alwaysVisibleSections(): Section
     {
         return Section::make('')
@@ -276,43 +299,47 @@ class BeritaAcaraResource extends Resource
                         ),
                     ]),
 
-                // Section Signature
+                // Section Signature (SUDAH RESPONSIF)
                 Section::make('Tanda Tangan Digital')
                     ->schema([
-                        Grid::make(3)
+                        // Grid utama yang mengatur layout Pengawas, Pelaksana, dan Kontraktor
+                        Grid::make(['default' => 1, 'lg' => 3]) // 1 kolom di mobile, 3 di desktop
                             ->schema([
-                                SignaturePad::make('signature_pengawas')
-                                    ->label('Tanda Tangan Pengawas')
-                                    ->penColor('#000000')
-                                    ->backgroundColor('#fafafa')
-                                    ->columnSpan(1),
+                                // GRUP 1: PENGAWAS
+                                Group::make()
+                                    ->schema([
+                                        SignaturePad::make('signature_pengawas')
+                                            ->label('Tanda Tangan Pengawas')
+                                            ->penColor('#000000')
+                                            ->backgroundColor('#ffffff'),
+                                        TextInput::make('nama_pengawas')
+                                            ->label('Nama Pengawas'),
+                                    ]),
 
-                                SignaturePad::make('signature_pelaksana')
-                                    ->label('Tanda Tangan Pelaksana')
-                                    ->penColor('#000000')
-                                    ->backgroundColor('#fafafa')
-                                    ->required()
-                                    ->columnSpan(1),
+                                // GRUP 2: PELAKSANA
+                                Group::make()
+                                    ->schema([
+                                        SignaturePad::make('signature_pelaksana')
+                                            ->label('Tanda Tangan Pelaksana')
+                                            ->penColor('#000000')
+                                            ->backgroundColor('#ffffff')
+                                            ->required(),
+                                        TextInput::make('nama_pelaksana')
+                                            ->label('Nama Pelaksana')
+                                            ->required(),
+                                    ]),
 
-                                SignaturePad::make('signature_kontraktor')
-                                    ->label('Tanda Tangan Kontraktor')
-                                    ->penColor('#000000')
-                                    ->backgroundColor('#fafafa')
-                                    ->columnSpan(1)
+                                // GRUP 3: KONTRAKTOR
+                                Group::make()
+                                    ->schema([
+                                        SignaturePad::make('signature_kontraktor')
+                                            ->label('Tanda Tangan Kontraktor')
+                                            ->penColor('#000000')
+                                            ->backgroundColor('#ffffff'),
+                                        TextInput::make('nama_kontraktor')
+                                            ->label('Nama Kontraktor'),
+                                    ]),
                             ]),
-
-                        Grid::make(3)
-                            ->schema([
-                                TextInput::make('nama_pengawas')
-                                    ->label('Nama Pengawas'),
-
-                                TextInput::make('nama_pelaksana')
-                                    ->label('Nama Pelaksana')
-                                    ->required(),
-
-                                TextInput::make('nama_kontraktor')
-                                    ->label('Nama Kontraktor')
-                            ])
                     ]),
             ]);
     }
@@ -358,7 +385,7 @@ class BeritaAcaraResource extends Resource
                     ->schema([
                         TextInput::make('nomor_bap')
                             ->label('No. Berita Acara Pemasangan')
-                            ->suffix('/BAPP/PAL')
+                            // ->suffix('/BAPP/PAL')
                             ->default(function () {
                                 // Ambil nomor terakhir dari database
                                 $lastNumber = \App\Models\BeritaAcara::max('id') ?? 0;
@@ -379,6 +406,11 @@ class BeritaAcaraResource extends Resource
                             ->searchable()
                             ->createOptionForm([
                                 TextInput::make('nomor_spk')
+                                    ->label('Nomor SPK/SPBJ/PK/WO')
+                                    ->mask(RawJs::make(<<<'JS'
+                                    $input.toUpperCase()
+                                    JS))
+                                    ->mutateDehydratedStateUsing(fn(?string $state): ?string => strtoupper($state))
                                     ->required()
                             ])
                             ->columnSpan(2),
@@ -799,83 +831,57 @@ class BeritaAcaraResource extends Resource
             ]);
     }
 
+    // Versi Updated 3
     protected static function titikKoordinatSection(): Section
     {
         return Section::make('Lokasi Pekerjaan')
             ->schema([
                 Map::make('titik_koordinat')
                     ->label('Peta Lokasi Pekerjaan')
-                    ->lazy()
-                    ->defaultLocation(0.510440, 101.438309)
                     ->required()
                     ->columnSpanFull()
-                    ->live()
-                    ->afterStateUpdated(function ($state, $set) {
-                        if (!is_array($state)) return;
-
-                        $lat = $state['lat'] ?? $state[0] ?? null;
-                        $lng = $state['lng'] ?? $state[1] ?? null;
+                    // --- PERUBAHAN 1: Hapus ->reactive() karena kita akan handle manual ---
+                    ->afterStateUpdated(function ($state, Set $set) {
+                        $lat = Arr::get($state, 'lat');
+                        $lng = Arr::get($state, 'lng');
 
                         if ($lat !== null && $lng !== null) {
-                            $set('latitude', $lat);
-                            $set('longitude', $lng);
-                            $set('titik_koordinat', ['lat' => $lat, 'lng' => $lng]);
+                            $set('latitude', (float)$lat);
+                            $set('longitude', (float)$lng);
                         }
                     })
-                    ->extraAttributes([
-                        'id' => 'map-container',
-                        'x-data' => '{}',
-                        '@location-updated.window' => '
-                                        if (!window.mapInstance) return;
-                                            mapInstance.setView([$event.detail.lat, $event.detail.lng], 18);
+                    ->helperText('Anda bisa menggeser marker untuk menentukan koordinat.'), // --- PERUBAHAN 2: Helper text disesuaikan ---
 
-                                            if (!window.mapMarker) {
-                                                window.mapMarker = L.marker([$event.detail.lat, $event.detail.lng], {
-                                                draggable: true,
-                                                autoPan: true,
-                                                icon: L.divIcon({className: "custom-marker", html: "📍"}) // Marker kustom
-                                            }).addTo(mapInstance);
-                                            
-                                            window.mapMarker.on("dragend", function(e) {
-                                                const newPos = e.target.getLatLng();
-                                                $wire.set("latitude", newPos.lat);
-                                                $wire.set("longitude", newPos.lng);
-                                                $wire.set("titik_koordinat", [newPos.lat, newPos.lng]);
-                                            });
-                                        } else {
-                                            window.mapMarker.setLatLng([$event.detail.lat, $event.detail.lng]);
-                                        }
-                                            // Update popup dengan info akurasi jika ada
-                                        const accuracy = $event.detail.accuracy ? `Akurasi: ~${Math.round($event.detail.accuracy)} meter` : "";
-                                        window.mapMarker.bindPopup(`Lokasi pekerjaan<br>${accuracy}`).openPopup();',
+                TextInput::make('koordinat_paste')
+                    ->label('Paste Koordinat (Latitude, Longitude) Disini')
+                    ->placeholder('Contoh: -0.5123, 101.4456')
+                    ->live(onBlur: true)
+                    ->dehydrated(false) // --- PERUBAHAN 3: Ditambahkan agar tidak disimpan ke database ---
+                    ->afterStateUpdated(function (Set $set, ?string $state) {
+                        if (blank($state)) return;
 
-                        // Tangani saat inputan lat/lng diubah manual
-                        '@input-updated.window' => '
-                                        if (!window.mapInstance) return;
-                                        const lat = $event.detail.lat;
-                                        const lng = $event.detail.lng;
-                                        
-                                        if (!lat || !lng) return;
-                                        mapInstance.setView([lat, lng], 18);
-                                        
-                                        if (!window.mapMarker) {
-                                            window.mapMarker = L.marker([lat, lng], {
-                                            draggable: true,
-                                            autoPan: true,
-                                            icon: L.divIcon({className: "custom-marker", html: "📍"})
-                                            }).addTo(mapInstance);
+                        $parts = explode(',', $state);
 
-                                            window.mapMarker.on("dragend", function(e) {
-                                            const newPos = e.target.getLatLng();
-                                            $wire.set("latitude", newPos.lat);
-                                            $wire.set("longitude", newPos.lng);
-                                            $wire.set("titik_koordinat", [newPos.lat, newPos.lng]);
-                                        });
-                                        
-                                        } else {
-                                         window.mapMarker.setLatLng([lat, lng]);
-                                        }',
-                    ]),
+                        if (count($parts) === 2) {
+                            $lat = trim($parts[0]);
+                            $lng = trim($parts[1]);
+
+                            if (is_numeric($lat) && is_numeric($lng)) {
+                                $set('latitude', (float)$lat);
+                                $set('longitude', (float)$lng);
+                                // --- PERUBAHAN 4: State peta diupdate agar data sinkron & marker bergerak ---
+                                $set('titik_koordinat', ['lat' => (float)$lat, 'lng' => (float)$lng]);
+
+                                Notification::make()
+                                    ->title('Koordinat Berhasil Diproses')
+                                    ->success()
+                                    // --- PERUBAHAN 5: Teks notifikasi disesuaikan ---
+                                    ->body('Latitude, Longitude, dan Peta sudah diperbarui.')
+                                    ->send();
+                            }
+                        }
+                    })
+                    ->columnSpanFull(),
 
                 Grid::make(2)
                     ->schema([
@@ -884,76 +890,488 @@ class BeritaAcaraResource extends Resource
                             ->numeric()
                             ->required()
                             ->live()
-                            ->afterStateUpdated(function ($state, $set, $get) {
-                                if (is_numeric($state) && is_numeric($get('longitude'))) {
-                                    $set('titik_koordinat', [$state, $get('longitude')]);
-
-                                    // Dispatch even agar map update marker
-                                    echo <<<SCRIPT
-                                        <script>
-                                            window.dispatchEvent(new CustomEvent('input-updated', {
-                                                detail: { lat: {$state}, lng: {$get('longitude')} }
-                                            }));
-                                        </script>
-                                    SCRIPT;
+                            // --- PERUBAHAN 6: Hook ditambahkan untuk sinkronisasi dari input ke peta ---
+                            ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                                if (is_numeric($get('longitude'))) {
+                                    $set('titik_koordinat', ['lat' => (float)$state, 'lng' => (float)$get('longitude')]);
                                 }
-                            })
-                            ->extraAttributes(['id' => 'latitude-field']),
+                            }),
 
                         TextInput::make('longitude')
                             ->label('Longitude')
                             ->numeric()
                             ->required()
                             ->live()
-                            ->afterStateUpdated(function ($state, $set, $get) {
-                                if (is_numeric($get('latitude')) && is_numeric($state)) {
-                                    $set('titik_koordinat', [$get('latitude'), $state]);
-
-                                    echo <<<SCRIPT
-                                    <script>
-                                        window.dispatchEvent(new CustomEvent('input-updated', {
-                                            detail: { lat: {$get('latitude')}, lng: {$state} }
-                                        }));
-                                    </script>
-                                SCRIPT;
+                            // --- PERUBAHAN 7: Hook ditambahkan untuk sinkronisasi dari input ke peta ---
+                            ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                                if (is_numeric($get('latitude'))) {
+                                    $set('titik_koordinat', ['lat' => (float)$get('latitude'), 'lng' => (float)$state]);
                                 }
-                            })
-                            ->extraAttributes(['id' => 'longitude-field']),
+                            }),
                     ]),
 
-                Actions::make([
-                    Action::make('get_location')
-                        ->label('Dapatkan Lokasi Saya Sekarang')
-                        ->icon('heroicon-o-map-pin')
-                        ->action(function ($livewire) {
-                            $livewire->dispatch('get-live-location');
-                        })
-                        ->extraAttributes([
-                            'class' => 'cursor-pointer w-full justify-center'
-                        ]),
-                ]),
-
-                View::make('filament.components.location-error')
-                    ->extraAttributes([
-                        'id' => 'location-error',
-                        'class' => 'text-sm text-red-600 mt-2'
-                    ]),
+                // --- PERUBAHAN 8: View untuk error 'geolocation' tidak lagi relevan dan bisa dihapus/disembunyikan ---
+                // View::make('filament.components.location-error')
+                //     ->extraAttributes([ ... ]),
             ])
-        ;
+            ->columns(1);
     }
+
+    // Versi Updated 2
+    // protected static function titikKoordinatSection(): Section
+    // {
+    //     return Section::make('Lokasi Pekerjaan')
+    //         ->extraAttributes([
+    //             'x-data' => 'geolocation',
+    //         ])
+    //         ->schema([
+    //             Map::make('titik_koordinat')
+    //                 ->label('Peta Lokasi Pekerjaan')
+    //                 ->required()
+    //                 ->columnSpanFull()
+    //                 ->live()
+    //                 ->afterStateUpdated(function ($state, Set $set) {
+    //                     $lat = Arr::get($state, 'lat');
+    //                     $lng = Arr::get($state, 'lng');
+
+    //                     if ($lat !== null && $lng !== null) {
+    //                         $set('latitude', (float)$lat);
+    //                         $set('longitude', (float)$lng);
+    //                     }
+    //                 })
+    //                 ->helperText('Tekan tombol Marker pada sebelah kanan bawah untuk Reload Location'),
+
+    //             TextInput::make('koordinat_paste')
+    //                 ->label('Paste Koordinat (Latitude, Longitude) Disini')
+    //                 ->placeholder('Contoh: -0.5123, 101.4456')
+    //                 ->helperText('Salin dan tempel (paste) koordinat yang sudah ada di sini')
+    //                 ->live(onBlur: true)
+    //                 ->afterStateUpdated(function (Set $set, ?string $state) {
+    //                     if (blank($state)) return;
+
+    //                     $parts = explode(',', $state);
+
+    //                     if (count($parts) === 2) {
+    //                         $lat = trim($parts[0]);
+    //                         $lng = trim($parts[1]);
+
+    //                         if (is_numeric($lat) && is_numeric($lng)) {
+    //                             $set('latitude', (float)$lat);
+    //                             $set('longitude', (float)$lng);
+    //                             $set('titik_koordinat', ['lat' => (float)$lat, 'lng' => (float)$lng]);
+    //                         }
+    //                     }
+    //                 })
+    //                 ->columnSpanFull(),
+
+    //             Grid::make(['default' => 1, 'md' => 2])
+    //                 ->schema([
+    //                     TextInput::make('latitude')
+    //                         ->label('Latitude')
+    //                         ->numeric()
+    //                         ->required()
+    //                         ->live()
+    //                         ->afterStateUpdated(function ($state, Set $set, Get $get) {
+    //                             if (is_numeric($state) && is_numeric($get('longitude'))) {
+    //                                 $set('titik_koordinat', ['lat' => (float)$state, 'lng' => (float)$get('longitude')]);
+    //                             }
+    //                         }),
+
+    //                     TextInput::make('longitude')
+    //                         ->label('Longitude')
+    //                         ->numeric()
+    //                         ->required()
+    //                         ->live()
+    //                         ->afterStateUpdated(function ($state, Set $set, Get $get) {
+    //                             if (is_numeric($get('latitude')) && is_numeric($state)) {
+    //                                 $set('titik_koordinat', ['lat' => (float)$get('latitude'), 'lng' => (float)$state]);
+    //                             }
+    //                         }),
+    //                 ]),
+
+    //             View::make('filament.components.location-error')
+    //                 ->extraAttributes([
+    //                     'id' => 'location-error',
+    //                     'class' => 'text-sm text-red-600 mt-2'
+    //                 ]),
+    //         ])
+    //         ->columns(1);
+    // }
+
+    // Versi Updated
+    // protected static function titikKoordinatSection(): Section
+    // {
+    //     return Section::make('Lokasi Pekerjaan')
+    //         ->extraAttributes([
+    //             'x-data' => 'geolocation', // Inisialisasi Alpine.js di sini
+    //         ])
+    //         ->schema([
+    //             Map::make('titik_koordinat')
+    //                 ->label('Peta Lokasi Pekerjaan')
+    //                 ->lazy()
+    //                 // Default Pekanbaru, Riau, Indonesia
+    //                 // Ini akan menjadi lokasi awal jika geolokasi gagal atau ditolak.
+    //                 // ->defaultLocation(0.510440, 101.438309)
+    //                 ->required()
+    //                 ->columnSpanFull()
+    //                 ->live()
+    //                 // Callback saat nilai MapPicker berubah (misal: marker digeser)
+    //                 ->afterStateUpdated(function ($state, Set $set) {
+    //                     if (!is_array($state) && !is_object($state)) {
+    //                         // Tangani kasus $state mungkin null atau bukan array/objek
+    //                         return;
+    //                     }
+
+    //                     // Pastikan $state adalah array asosiatif {lat:x, lng:y}
+    //                     $lat = $state['lat'] ?? null;
+    //                     $lng = $state['lng'] ?? null;
+
+    //                     if ($lat !== null && $lng !== null) {
+    //                         $set('latitude', (float)$lat);
+    //                         $set('longitude', (float)$lng);
+    //                         // Penting: pastikan titik_koordinat selalu format array asosiatif {lat:x, lng:y}
+    //                         $set('titik_koordinat', ['lat' => (float)$lat, 'lng' => (float)$lng]);
+    //                     }
+    //                 })
+    //                 // Atribut ekstra untuk JavaScript MapPicker dan penanganan event
+    //                 ->extraAttributes([
+    //                     'id' => 'map-container',
+    //                     'x-data' => '{}', // Ini untuk Alpine.js initialization pada MapPicker
+    //                     '@location-updated.window' => '
+    //                         if (!window.mapInstance) return;
+    //                         mapInstance.setView([$event.detail.lat, $event.detail.lng], 18);
+
+    //                         if (!window.mapMarker) {
+    //                             window.mapMarker = L.marker([$event.detail.lat, $event.detail.lng], {
+    //                                 draggable: true,
+    //                                 autoPan: true,
+    //                                 icon: L.divIcon({className: "custom-marker", html: "📍"}) // Marker kustom
+    //                             }).addTo(mapInstance);
+
+    //                             window.mapMarker.on("dragend", function(e) {
+    //                                 const newPos = e.target.getLatLng();
+    //                                 $wire.set("latitude", newPos.lat);
+    //                                 $wire.set("longitude", newPos.lng);
+    //                                 // Map picker expects [lat, lng] for its internal update
+    //                                 // This will trigger afterStateUpdated on the Map field
+    //                                 $wire.set("titik_koordinat", [newPos.lat, newPos.lng]);
+    //                             });
+    //                         } else {
+    //                             window.mapMarker.setLatLng([$event.detail.lat, $event.detail.lng]);
+    //                         }
+    //                         const accuracy = $event.detail.accuracy ? `Akurasi: ~${Math.round($event.detail.accuracy)} meter` : "";
+    //                         window.mapMarker.bindPopup(`Lokasi pekerjaan<br>${accuracy}`).openPopup();',
+    //                     // Tangani saat inputan lat/lng diubah manual
+    //                     '@input-updated.window' => '
+    //                         if (!window.mapInstance) return;
+    //                         const lat = $event.detail.lat;
+    //                         const lng = $event.detail.lng;
+
+    //                         if (!lat || !lng) return;
+    //                         mapInstance.setView([lat, lng], 18);
+
+    //                         if (!window.mapMarker) {
+    //                             window.mapMarker = L.marker([lat, lng], {
+    //                                 draggable: true,
+    //                                 autoPan: true,
+    //                                 icon: L.divIcon({className: "custom-marker", html: "📍"})
+    //                             }).addTo(mapInstance);
+
+    //                             window.mapMarker.on("dragend", function(e) {
+    //                                 const newPos = e.target.getLatLng();
+    //                                 $wire.set("latitude", newPos.lat);
+    //                                 $wire.set("longitude", newPos.lng);
+    //                                 $wire.set("titik_koordinat", [newPos.lat, newPos.lng]);
+    //                             });
+    //                         } else {
+    //                            window.mapMarker.setLatLng([lat, lng]);
+    //                         }',
+    //                 ]),
+
+    //             Grid::make(2)
+    //                 ->schema([
+    //                     TextInput::make('latitude')
+    //                         ->label('Latitude')
+    //                         ->numeric()
+    //                         ->required()
+    //                         ->live()
+    //                         // Gunakan $set->dispatch() untuk mengirim event ke frontend dengan Livewire
+    //                         ->afterStateUpdated(function ($state, Set $set, Get $get) {
+    //                             if (is_numeric($state) && is_numeric($get('longitude'))) {
+    //                                 $set('titik_koordinat', [(float)$state, (float)$get('longitude')]);
+    //                                 // Dispatch event agar map update marker
+    //                                 $set->dispatch('input-updated', ['lat' => (float)$state, 'lng' => (float)$get('longitude')]);
+    //                             }
+    //                         })
+    //                         ->extraAttributes(['id' => 'latitude-field']),
+
+    //                     TextInput::make('longitude')
+    //                         ->label('Longitude')
+    //                         ->numeric()
+    //                         ->required()
+    //                         ->live()
+    //                         ->afterStateUpdated(function ($state, Set $set, Get $get) {
+    //                             if (is_numeric($get('latitude')) && is_numeric($state)) {
+    //                                 $set('titik_koordinat', [(float)$get('latitude'), (float)$state]);
+    //                                 // Dispatch event agar map update marker
+    //                                 $set->dispatch('input-updated', ['lat' => (float)$get('latitude'), 'lng' => (float)$state]);
+    //                             }
+    //                         })
+    //                         ->extraAttributes(['id' => 'longitude-field']),
+    //                 ]),
+
+    //             Actions::make([
+    //                 Action::make('get_location')
+    //                     ->label('Dapatkan Lokasi Saya Sekarang')
+    //                     ->icon('heroicon-o-map-pin')
+    //                     ->action(function ($livewire) {
+    //                         $livewire->dispatch('get-live-location');
+    //                     })
+    //                     ->extraAttributes([
+    //                         'class' => 'cursor-pointer w-full justify-center',
+    //                         'x-data' => 'geolocation', // Alpine.js component initialization
+    //                         'data-geolocation-button' => true // Custom attribute for JS to find this button
+    //                     ]),
+    //             ]),
+
+    //             // View untuk menampilkan error lokasi
+    //             // Pastikan ada file `resources/views/filament/components/location-error.blade.php`
+    //             // yang mungkin hanya berisi `<div x-text="errorMessage"></div>` atau sejenisnya.
+    //             View::make('filament.components.location-error')
+    //                 ->extraAttributes([
+    //                     'id' => 'location-error', // ID untuk ditargetkan oleh JS
+    //                     'class' => 'text-sm text-red-600 mt-2'
+    //                 ]),
+    //         ])
+    //         ->columns(1) // Atau Grid::make(1) jika ini hanya satu kolom besar
+    //     ;
+    // }
+
+    // Versi Original
+    // protected static function titikKoordinatSection(): Section
+    // {
+    //     return Section::make('Lokasi Pekerjaan')
+    //         ->schema([
+    //             Map::make('titik_koordinat')
+    //                 ->label('Peta Lokasi Pekerjaan')
+    //                 ->lazy()
+    //                 ->defaultLocation(0.510440, 101.438309)
+    //                 ->required()
+    //                 ->columnSpanFull()
+    //                 ->live()
+    //                 ->afterStateUpdated(function ($state, $set) {
+    //                     if (!is_array($state)) return;
+
+    //                     $lat = $state['lat'] ?? $state[0] ?? null;
+    //                     $lng = $state['lng'] ?? $state[1] ?? null;
+
+    //                     if ($lat !== null && $lng !== null) {
+    //                         $set('latitude', $lat);
+    //                         $set('longitude', $lng);
+    //                         $set('titik_koordinat', ['lat' => $lat, 'lng' => $lng]);
+    //                     }
+    //                 })
+    //                 ->extraAttributes([
+    //                     'id' => 'map-container',
+    //                     'x-data' => '{}',
+    //                     '@location-updated.window' => '
+    //                                     if (!window.mapInstance) return;
+    //                                         mapInstance.setView([$event.detail.lat, $event.detail.lng], 18);
+
+    //                                         if (!window.mapMarker) {
+    //                                             window.mapMarker = L.marker([$event.detail.lat, $event.detail.lng], {
+    //                                             draggable: true,
+    //                                             autoPan: true,
+    //                                             icon: L.divIcon({className: "custom-marker", html: "📍"}) // Marker kustom
+    //                                         }).addTo(mapInstance);
+
+    //                                         window.mapMarker.on("dragend", function(e) {
+    //                                             const newPos = e.target.getLatLng();
+    //                                             $wire.set("latitude", newPos.lat);
+    //                                             $wire.set("longitude", newPos.lng);
+    //                                             $wire.set("titik_koordinat", [newPos.lat, newPos.lng]);
+    //                                         });
+    //                                     } else {
+    //                                         window.mapMarker.setLatLng([$event.detail.lat, $event.detail.lng]);
+    //                                     }
+    //                                         // Update popup dengan info akurasi jika ada
+    //                                     const accuracy = $event.detail.accuracy ? `Akurasi: ~${Math.round($event.detail.accuracy)} meter` : "";
+    //                                     window.mapMarker.bindPopup(`Lokasi pekerjaan<br>${accuracy}`).openPopup();',
+
+    //                     // Tangani saat inputan lat/lng diubah manual
+    //                     '@input-updated.window' => '
+    //                                     if (!window.mapInstance) return;
+    //                                     const lat = $event.detail.lat;
+    //                                     const lng = $event.detail.lng;
+
+    //                                     if (!lat || !lng) return;
+    //                                     mapInstance.setView([lat, lng], 18);
+
+    //                                     if (!window.mapMarker) {
+    //                                         window.mapMarker = L.marker([lat, lng], {
+    //                                         draggable: true,
+    //                                         autoPan: true,
+    //                                         icon: L.divIcon({className: "custom-marker", html: "📍"})
+    //                                         }).addTo(mapInstance);
+
+    //                                         window.mapMarker.on("dragend", function(e) {
+    //                                         const newPos = e.target.getLatLng();
+    //                                         $wire.set("latitude", newPos.lat);
+    //                                         $wire.set("longitude", newPos.lng);
+    //                                         $wire.set("titik_koordinat", [newPos.lat, newPos.lng]);
+    //                                     });
+
+    //                                     } else {
+    //                                      window.mapMarker.setLatLng([lat, lng]);
+    //                                     }',
+    //                 ]),
+
+    //             Grid::make(2)
+    //                 ->schema([
+    //                     TextInput::make('latitude')
+    //                         ->label('Latitude')
+    //                         ->numeric()
+    //                         ->required()
+    //                         ->live()
+    //                         ->afterStateUpdated(function ($state, $set, $get) {
+    //                             if (is_numeric($state) && is_numeric($get('longitude'))) {
+    //                                 $set('titik_koordinat', [$state, $get('longitude')]);
+
+    //                                 // Dispatch even agar map update marker
+    //                                 echo <<<SCRIPT
+    //                                     <script>
+    //                                         window.dispatchEvent(new CustomEvent('input-updated', {
+    //                                             detail: { lat: {$state}, lng: {$get('longitude')} }
+    //                                         }));
+    //                                     </script>
+    //                                 SCRIPT;
+    //                             }
+    //                         })
+    //                         ->extraAttributes(['id' => 'latitude-field']),
+
+    //                     TextInput::make('longitude')
+    //                         ->label('Longitude')
+    //                         ->numeric()
+    //                         ->required()
+    //                         ->live()
+    //                         ->afterStateUpdated(function ($state, $set, $get) {
+    //                             if (is_numeric($get('latitude')) && is_numeric($state)) {
+    //                                 $set('titik_koordinat', [$get('latitude'), $state]);
+
+    //                                 echo <<<SCRIPT
+    //                                 <script>
+    //                                     window.dispatchEvent(new CustomEvent('input-updated', {
+    //                                         detail: { lat: {$get('latitude')}, lng: {$state} }
+    //                                     }));
+    //                                 </script>
+    //                             SCRIPT;
+    //                             }
+    //                         })
+    //                         ->extraAttributes(['id' => 'longitude-field']),
+    //                 ]),
+
+    //             Actions::make([
+    //                 Action::make('get_location')
+    //                     ->label('Dapatkan Lokasi Saya Sekarang')
+    //                     ->icon('heroicon-o-map-pin')
+    //                     ->action(function ($livewire) {
+    //                         $livewire->dispatch('get-live-location');
+    //                     })
+    //                     ->extraAttributes([
+    //                         'class' => 'cursor-pointer w-full justify-center'
+    //                     ]),
+    //             ]),
+
+    //             View::make('filament.components.location-error')
+    //                 ->extraAttributes([
+    //                     'id' => 'location-error',
+    //                     'class' => 'text-sm text-red-600 mt-2'
+    //                 ]),
+    //         ])
+    //     ;
+    // }
 
     protected static function pengawasanSection(): Section
     {
+        // return Section::make('Pengawasan Pekerjaan')
+        //     ->schema([
+        //         // Tanggal Pemasangan
+        //         Grid::make(2)
+        //             ->schema([
+        //                 DatePicker::make('start_date')
+        //                     ->label('Tanggal Mulai')
+        //                     ->required(),
+
+        //                 DatePicker::make('end_date')
+        //                     ->label('Tanggal Selesai')
+        //                     ->required(),
+        //             ]),
+        //         // Waktu Pemasangan
+        //         Grid::make(3)
+        //             ->schema([
+        //                 Placeholder::make('waktu_pemasangan_label')
+        //                     ->content('Waktu Pemasangan:')
+        //                     ->disableLabel()
+        //                     ->extraAttributes(['class' => 'font-bold'])
+        //                     ->columnSpanFull(),
+
+        //                 TimePicker::make('waktu_pemasangan.tiba_di_lokasi')
+        //                     ->label('Tiba di Lokasi')
+        //                     ->seconds(false),
+
+        //                 TimePicker::make('waktu_pemasangan.mulai_kerja')
+        //                     ->label('Mulai Kerja')
+        //                     ->seconds(false),
+
+        //                 TimePicker::make('waktu_pemasangan.selesai')
+        //                     ->label('Selesai')
+        //                     ->seconds(false),
+        //             ]),
+
+        //         // Peralatan Kerja
+        //         self::pengawasanChecklist(
+        //             'peralatan_kerja',
+        //             'Peralatan Kerja',
+        //             'Catatan Peralatan Kerja'
+        //         ),
+
+        //         // Seragam Kerja
+        //         self::pengawasanChecklist(
+        //             'seragam_kerja',
+        //             'Seragam Kerja',
+        //             'Catatan Seragam Kerja'
+        //         ),
+
+        //         // Peralatan K2
+        //         self::pengawasanChecklist(
+        //             'peralatan_k2',
+        //             'Peralatan K2',
+        //             'Catatan Peralatan K2'
+        //         ),
+
+        //         // Label Timah
+        //         self::pengawasanChecklist(
+        //             'label_timah',
+        //             'Label Timah/Penang',
+        //             'Catatan Label Timah'
+        //         ),
+
+        //         // Catatan Pekerjaan
+        //         Textarea::make('catatan_pekerjaan')
+        //             ->label('Catatan Pekerjaan')
+        //             ->placeholder('..........')
+        //             ->columnSpanFull()
+        //             ->rows(3),
+        //     ]);
+
         return Section::make('Pengawasan Pekerjaan')
             ->schema([
-                // Waktu Pemasangan
-                Grid::make(3)
+                // Gabungkan semua field tanggal dan waktu dalam satu Grid Responsif
+                Grid::make(['default' => 1, 'md' => 3, 'lg' => 5]) // 1 kolom di mobile, 3 di tablet, 5 di desktop
                     ->schema([
-                        Placeholder::make('waktu_pemasangan_label')
-                            ->content('Waktu Pemasangan:')
-                            ->disableLabel()
-                            ->extraAttributes(['class' => 'font-bold'])
-                            ->columnSpanFull(),
+                        DatePicker::make('start_date')
+                            ->label('Tanggal Mulai')
+                            ->required(),
 
                         TimePicker::make('waktu_pemasangan.tiba_di_lokasi')
                             ->label('Tiba di Lokasi')
@@ -963,47 +1381,42 @@ class BeritaAcaraResource extends Resource
                             ->label('Mulai Kerja')
                             ->seconds(false),
 
+                        DatePicker::make('end_date')
+                            ->label('Tanggal Selesai')
+                            ->required(),
+
                         TimePicker::make('waktu_pemasangan.selesai')
                             ->label('Selesai')
                             ->seconds(false),
                     ]),
 
-                // Peralatan Kerja
+                // Komponen lainnya tetap sama karena sudah full-width
                 self::pengawasanChecklist(
                     'peralatan_kerja',
                     'Peralatan Kerja',
                     'Catatan Peralatan Kerja'
                 ),
-
-                // Seragam Kerja
                 self::pengawasanChecklist(
                     'seragam_kerja',
                     'Seragam Kerja',
                     'Catatan Seragam Kerja'
                 ),
-
-                // Peralatan K2
                 self::pengawasanChecklist(
                     'peralatan_k2',
                     'Peralatan K2',
                     'Catatan Peralatan K2'
                 ),
-
-                // Label Timah
                 self::pengawasanChecklist(
                     'label_timah',
                     'Label Timah/Penang',
                     'Catatan Label Timah'
                 ),
-
-                // Catatan Pekerjaan
                 Textarea::make('catatan_pekerjaan')
                     ->label('Catatan Pekerjaan')
                     ->placeholder('..........')
                     ->columnSpanFull()
                     ->rows(3),
-            ])
-        ;
+            ]);
     }
 
     protected static function pengawasanChecklist(string $field, string $title, string $noteLabel): Group
@@ -1024,6 +1437,7 @@ class BeritaAcaraResource extends Resource
                                 'lengkap' => 'Lengkap/Ada',
                                 'tidak_lengkap' => 'Tidak Lengkap/Tidak Ada',
                             ])
+                            ->default('lengkap')
                             ->live()
                             ->afterStateUpdated(function ($state, Set $set) use ($field) {
                                 $set("{$field}.lengkap", $state === 'lengkap');
@@ -1047,7 +1461,14 @@ class BeritaAcaraResource extends Resource
 
                 Textarea::make("{$field}.catatan")
                     ->label($noteLabel)
+                    ->hidden(fn(Get $get) => $get("{$field}_radio") !== 'tidak_lengkap')
                     ->placeholder('.....')
+                    ->default(function (Get $get) use ($field) {
+                        if ($get("{$field}_radio") === 'lengkap') {
+                            return 'Lengkap sesuai persyaratan.';
+                        }
+                        return null;
+                    })
                     ->columnSpanFull(),
             ])
             ->columnSpan(1);
@@ -1067,12 +1488,17 @@ class BeritaAcaraResource extends Resource
             ->reorderable()
             ->appendFiles()
             ->previewable(true)
-            ->preserveFilenames()
+            ->preserveFilenames(false)
             ->disk('public')
+            // ->header(fn(Get $get) => view('filament.forms.components.image-previews', ['state' => $get($name)]))
+            // ->visible(fn(string $operation): bool => $operation === 'create' || $operation === 'edit')
             ->visibility('public')
             ->getUploadedFileNameForStorageUsing(
-                fn(TemporaryUploadedFile $file): string => self::optimizeAndStoreImage($file)
+                fn(TemporaryUploadedFile $file): string => 'bap/' . Str::random(40) . '.' . $file->getClientOriginalExtension()
             );
+        // ->getUploadedFileNameForStorageUsing(
+        //     fn(TemporaryUploadedFile $file): string => self::optimizeAndStoreImage($file)
+        // );
     }
 
     private static function optimizeAndStoreImage(TemporaryUploadedFile $file): string

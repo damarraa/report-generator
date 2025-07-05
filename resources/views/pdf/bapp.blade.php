@@ -194,37 +194,38 @@
 
         <div class="title-section">
             <h3>BERITA ACARA PEMASANGAN</h3>
-            <p>NO : {{ $record->nomor_bap }}</p>
+            <p>NO : <strong>{{ $record->nomor_bap }}</strong></p>
         </div>
     </div>
 
-    <p style="margin-top: -8px;">Jenis Pekerjaan: {{ ucfirst(trim($record->jenis_pekerjaan)) }}</p>
+    <p style="margin-top: -8px;">Jenis Pekerjaan: <strong>{{ ucfirst(trim($record->jenis_pekerjaan)) }}</strong></p>
     <div class="section" style="margin-top: -8px;">
         <table class="row-table">
             <tr>
                 <td class="col-2">1. NO. SPK / SPBJ / PK / WO</td>
                 <td>:</td>
-                <td class="col-3">{{ $record->spk->nomor_spk }}</td>
+                <td class="col-3"><strong>{{ $record->spk->nomor_spk }}</strong></td>
             </tr>
             <tr>
                 <td class="col-2">2. CUSTOMER</td>
                 <td>:</td>
-                <td class="col-3">{{ $record->customer->customer_name }}</td>
+                <td class="col-3"><strong>{{ $record->customer->customer_name }}</strong></td>
             </tr>
             <tr>
                 <td class="col-2">3. PELAKSANA GALI / KONTRAKTOR</td>
                 <td>:</td>
-                <td class="col-3">{{ $record->pelaksana_gali }}</td>
+                <td class="col-3"><strong>{{ $record->pelaksana_gali }}</strong></td>
             </tr>
             <tr>
                 <td class="col-2">4. PENYULANG & ARAH GARDU</td>
                 <td>:</td>
-                <td class="col-3">{{ $record->penyulang->penyulang_gardu }} Arah Gardu {{ $record->arah_gardu }}</td>
+                <td class="col-3"><strong>{{ $record->penyulang->penyulang_gardu }} Arah Gardu
+                        {{ $record->arah_gardu }}</strong></td>
             </tr>
             <tr>
                 <td class="col-2">5. LOKASI PEKERJAAN</td>
                 <td>:</td>
-                <td class="col-3">{{ $record->lokasi_pekerjaan }}</td>
+                <td class="col-3"><strong>{{ $record->lokasi_pekerjaan }}</strong></td>
             </tr>
             <tr>
                 <td class="col-2">6. GALIAN & PERBAIKAN</td>
@@ -258,7 +259,8 @@
                                     <span style="display:inline-block;width:50px;text-align:center;margin-left:5px;">
                                         {{-- {{ $record->galian_perbaikan['lebar'] ?? '' }} m --}}
                                         {{-- {{ ($record->galian_perbaikan['lebar'] ?? 0) < 1 ? 1 : $record->galian_perbaikan['lebar'] ?? 1 }} m --}}
-                                        {{ number_format((($record->galian_perbaikan['lebar'] ?? 0) < 1 ? 1 : ($record->galian_perbaikan['lebar'] ?? 1)), 2) }} m
+                                        {{ number_format(($record->galian_perbaikan['lebar'] ?? 0) < 1 ? 1 : $record->galian_perbaikan['lebar'] ?? 1, 2) }}
+                                        m
                                     </span>
                                 </div>
                             </td>
@@ -289,7 +291,8 @@
                                     <span style="display:inline-block;width:50px;text-align:center;margin-left:5px;">
                                         {{-- {{ $record->galian_perbaikan['tinggi'] ?? '' }} m --}}
                                         {{-- {{ ($record->galian_perbaikan['tinggi'] ?? 0) < 1 ? 1 : $record->galian_perbaikan['tinggi'] ?? 1 }} m --}}
-                                        {{ number_format((($record->galian_perbaikan['tinggi'] ?? 0) < 1 ? 1 : ($record->galian_perbaikan['tinggi'] ?? 1)), 2) }} m
+                                        {{ number_format(($record->galian_perbaikan['tinggi'] ?? 0) < 1 ? 1 : $record->galian_perbaikan['tinggi'] ?? 1, 2) }}
+                                        m
                                     </span>
                                 </div>
                             </td>
@@ -673,9 +676,10 @@
                                     @php
                                         $item = $materials[$i];
                                     @endphp
-                                    <td>{{ $i + 1 }}. {{ $item['material_name'] ?? '.....' }}</td>
-                                    <td>{{ $item['serial_number'] ?? '.....' }}</td>
-                                    <td>{{ ucfirst($item['konduktor'] ?? '.....') }}</td>
+                                    <td>{{ $i + 1 }}. <strong>{{ $item['material_name'] ?? '.....' }}</strong>
+                                    </td>
+                                    <td><strong>{{ $item['serial_number'] ?? '.....' }}</strong></td>
+                                    <td><strong>{{ ucfirst($item['konduktor'] ?? '.....') }}</strong></td>
                                 @else
                                     <td>{{ $i + 1 }}. ..............</td>
                                     <td>..............</td>
@@ -759,11 +763,14 @@
                 <td>:</td>
                 <td class="col-3">
                     <div style="line-height: 150%;">Leader:
-                        {{ $record->leader->nama_jointer ?? '............................................' }}</div>
+                        <strong>{{ $record->leader->nama_jointer ?? '............................................' }}</strong>
+                    </div>
                     <div style="line-height: 150%;">Jointer:
-                        {{ $record->jointer->nama_jointer ?? '............................................' }}</div>
+                        <strong>{{ $record->jointer->nama_jointer ?? '............................................' }}</strong>
+                    </div>
                     <div style="line-height: 150%;">Helper:
-                        {{ $record->helper->nama_jointer ?? '............................................' }}</div>
+                        <strong>{{ $record->helper->nama_jointer ?? '............................................' }}</strong>
+                    </div>
                 </td>
             </tr>
             <tr>
@@ -774,7 +781,7 @@
                         $koordinat = $record->titik_koordinat;
                     @endphp
 
-                    ( {{ $koordinat['lat'] ?? '.....' }} , {{ $koordinat['lng'] ?? '.....' }} )
+                    <strong>( {{ $koordinat['lat'] ?? '.....' }} , {{ $koordinat['lng'] ?? '.....' }} )</strong>
                 </td>
             </tr>
         </table>
@@ -791,16 +798,23 @@
                 <td class="col-2">16. WAKTU PEMASANGAN</td>
                 <td>:</td>
                 <td class="col-3">
-                    <table class="row-table" style="margin-bottom: 0;">
-                        <tr>
-                            <td style="width: 33%;">TIBA DI LOKASI
-                                {{ $record->waktu_pemasangan['tiba_di_lokasi'] ?? '..............' }}</td>
-                            <td style="width: 33%;">MULAI KERJA
-                                {{ $record->waktu_pemasangan['mulai_kerja'] ?? '..............' }}</td>
-                            <td style="width: 33%;">SELESAI
-                                {{ $record->waktu_pemasangan['selesai'] ?? '..............' }}</td>
-                        </tr>
-                    </table>
+                    <div style="margin-bottom: 5px;">
+                        TANGGAL MULAI:
+                        <strong>{{ $record->start_date ? \Carbon\Carbon::parse($record->start_date)->format('d/m/Y') : '..............' }}</strong>
+                        <span style="margin-left: 3px;">TANGGAL SELESAI:</span>
+                        <strong>{{ $record->end_date ? \Carbon\Carbon::parse($record->end_date)->format('d/m/Y') : '..............' }}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="flex: 1;">TIBA DI LOKASI
+                            <strong>{{ $record->waktu_pemasangan['tiba_di_lokasi'] ?? '..............' }}</strong>
+                        </span>
+                        <span style="flex: 1; margin-left: 3px;">MULAI KERJA
+                            <strong>{{ $record->waktu_pemasangan['mulai_kerja'] ?? '..............' }}</strong>
+                        </span>
+                        <span style="flex: 1; margin-left: 3px;">SELESAI
+                            <strong>{{ $record->waktu_pemasangan['selesai'] ?? '..............' }}</strong>
+                        </span>
+                    </div>
                 </td>
             </tr>
             <tr>
@@ -809,7 +823,7 @@
                 <td class="col-3">
                     <table class="row-table" style="margin-bottom: 0;">
                         <tr>
-                            <td style="width: 33%;">
+                            <td style="width: 30%;">
                                 LENGKAP
                                 <span
                                     style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
@@ -818,7 +832,7 @@
                                     @endif
                                 </span>
                             </td>
-                            <td style="width: 33%;">
+                            <td style="width: 30%;">
                                 TIDAK LENGKAP
                                 <span
                                     style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
@@ -827,7 +841,8 @@
                                     @endif
                                 </span>
                             </td>
-                            <td style="width: 33%;">{{ $record->peralatan_kerja['catatan'] ?? '................' }}
+                            <td style="width: 40%;">
+                                <strong>{{ $record->peralatan_kerja['catatan'] ?? '................' }}</strong>
                             </td>
                         </tr>
                     </table>
@@ -839,7 +854,7 @@
                 <td class="col-3">
                     <table class="row-table" style="margin-bottom: 0;">
                         <tr>
-                            <td style="width: 33%;">
+                            <td style="width: 30%;">
                                 ADA
                                 <span
                                     style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
@@ -848,7 +863,7 @@
                                     @endif
                                 </span>
                             </td>
-                            <td style="width: 33%;">
+                            <td style="width: 30%;">
                                 TIDAK ADA
                                 <span
                                     style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
@@ -857,7 +872,9 @@
                                     @endif
                                 </span>
                             </td>
-                            <td style="width: 33%;">{{ $record->seragam_kerja['catatan'] ?? '................' }}</td>
+                            <td style="width: 40%;">
+                                <strong>{{ $record->seragam_kerja['catatan'] ?? '................' }}</strong>
+                            </td>
                         </tr>
                     </table>
                 </td>
@@ -868,7 +885,7 @@
                 <td class="col-3">
                     <table class="row-table" style="margin-bottom: 0;">
                         <tr>
-                            <td style="width: 33%;">
+                            <td style="width: 30%;">
                                 ADA
                                 <span
                                     style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
@@ -877,7 +894,7 @@
                                     @endif
                                 </span>
                             </td>
-                            <td style="width: 33%;">
+                            <td style="width: 30%;">
                                 TIDAK ADA
                                 <span
                                     style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
@@ -886,7 +903,9 @@
                                     @endif
                                 </span>
                             </td>
-                            <td style="width: 33%;">{{ $record->peralatan_k2['catatan'] ?? '................' }}</td>
+                            <td style="width: 40%;">
+                                <strong>{{ $record->peralatan_k2['catatan'] ?? '................' }}</strong>
+                            </td>
                         </tr>
                     </table>
                 </td>
@@ -897,7 +916,7 @@
                 <td class="col-3">
                     <table class="row-table" style="margin-bottom: 0;">
                         <tr>
-                            <td style="width: 33%;">
+                            <td style="width: 30%;">
                                 ADA
                                 <span
                                     style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
@@ -906,7 +925,7 @@
                                     @endif
                                 </span>
                             </td>
-                            <td style="width: 33%;">
+                            <td style="width: 30%;">
                                 TIDAK ADA
                                 <span
                                     style="display:inline-block;width:10px;height:10px;border:1px solid #000;text-align:center;font-family:DejaVu Sans;font-size:10px;line-height:10px;">
@@ -915,7 +934,9 @@
                                     @endif
                                 </span>
                             </td>
-                            <td style="width: 33%;">{{ $record->label_timah['catatan'] ?? '................' }}</td>
+                            <td style="width: 40%;">
+                                <strong>{{ $record->label_timah['catatan'] ?? '................' }}</strong>
+                            </td>
                         </tr>
                     </table>
                 </td>
@@ -924,15 +945,15 @@
                 <td class="col-2">CATATAN PEKERJAAN</td>
                 <td>:</td>
                 <td class="col-3">
-                    <div style="border: 1px solid #000; height: 45px; margin-top: 3px; padding: 2px;">
-                        {{ $record->catatan_pekerjaan }}
+                    <div style="border: 1px solid #000; height: 35px; margin-top: 3px; padding: 2px;">
+                        <strong>{{ $record->catatan_pekerjaan }}</strong>
                     </div>
                 </td>
             </tr>
         </table>
     </div>
 
-    <table class="signature-table" style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+    <table class="signature-table" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
         <tr>
             <td style="width: 33%; text-align: center; font-size: 9px; padding: 0; border: none; vertical-align: top;">
                 Mengetahui<br><br>
@@ -967,7 +988,7 @@
 
             <td style="width: 33%; text-align: center; font-size: 9px; padding: 0; border: none; vertical-align: top;">
                 Tanggal,
-                {{ $record->created_at ? $record->created_at->format('d F Y') : '..................' }}<br>
+                {{ $record->created_at ? $record->created_at->locale('id')->format('d F Y') : '..................' }}<br>
                 Kontraktor<br>
                 @if ($record->signature_kontraktor)
                     <img src="{{ $record->signature_kontraktor }}" alt="Tanda Tangan Kontraktor"

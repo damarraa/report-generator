@@ -38,6 +38,8 @@ class BeritaAcara extends Model
         'peralatan_k2',
         'catatan_peralatan_k2',
         'label_timah',
+        'start_date',
+        'end_date',
         'catatan_label_timah',
         'catatan_pekerjaan',
         'foto_pengukuran',
