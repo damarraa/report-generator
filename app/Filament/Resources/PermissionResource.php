@@ -17,6 +17,7 @@ class PermissionResource extends Resource
 {
     protected static ?string $model = \Spatie\Permission\Models\Permission::class;
     protected static ?string $navigationIcon = 'heroicon-o-key';
+    protected static ?string $navigationLabel = 'Manajemen Hak Akses';
     protected static ?string $navigationGroup = 'Manajemen Sistem';
     protected static ?int $navigationSort = 3;
 

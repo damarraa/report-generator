@@ -14,18 +14,34 @@ return new class extends Migration
         Schema::create('penyulangs', function (Blueprint $table) {
             $table->id();
             $table->string('penyulang_gardu');
+            $table->index('penyulang_gardu');
             $table->timestamps();
         });
 
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
             $table->string('customer_name');
+            $table->index('customer_name');
             $table->timestamps();
         });
 
         Schema::create('jointers', function (Blueprint $table) {
             $table->id();
             $table->string('nama_jointer');
+            $table->index('nama_jointer');
+            $table->timestamps();
+        });
+
+        Schema::create('materials', function (Blueprint $table) {
+            $table->id();
+            $table->string('material_name');
+            $table->index('material_name');
+            $table->timestamps();
+        });
+
+        Schema::create('s_p_k_s', function (Blueprint $table) {
+            $table->id();
+            $table->string('nomor_spk');
             $table->timestamps();
         });
 
@@ -34,7 +50,6 @@ return new class extends Migration
             $table->string('nomor_bap');
             $table->enum('jenis_pekerjaan', ['jointing', 'terminating']);
             $table->enum('pekerjaan', ['pasang baru', 'gangguan tanpa tambah kabel', 'gangguan dengan tambah kabel']);
-            $table->string('no_spk');
             $table->string('pelaksana_gali');
             $table->string('arah_gardu');
             $table->string('lokasi_pekerjaan');
@@ -69,13 +84,15 @@ return new class extends Migration
             $table->foreignId('customer_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
+            $table->foreignId('spk_id')->constrained('s_p_k_s')->onDelete('cascade');
             // $table->foreignId('jointer_id')->constrained()->onDelete('cascade');
             $table->foreignId('leader_id')->nullable()->constrained('jointers')->onDelete('set null');
             $table->foreignId('jointer_id')->nullable()->constrained('jointers')->onDelete('set null');
             $table->foreignId('helper_id')->nullable()->constrained('jointers')->onDelete('set null');
 
-
             $table->timestamps();
+
+            $table->index('pekerjaan');
         });
     }
 
@@ -86,6 +103,9 @@ return new class extends Migration
     {
         Schema::dropIfExists('penyulangs');
         Schema::dropIfExists('customers');
+        Schema::dropIfExists('jointers');
+        Schema::dropIfExists('materials');
+        Schema::dropIfExists('s_p_k_s');
         Schema::dropIfExists('berita_acaras');
     }
 };

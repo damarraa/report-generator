@@ -1,0 +1,26 @@
+/* resources/css/filament-overrides.css */
+
+/* Force SignaturePad canvas to have a white background and black lines in dark mode */
+/* Target the canvas directly, and its container if necessary */
+
+/* 1. Ensure the canvas background is always white */
+.dark .filament-forms-components-signature-pad-field canvas {
+    background-color: #ffffff !important; /* Force white background */
+}
+
+/* 2. Prevent any filter: invert() or similar from affecting the canvas */
+/* This is crucial if dark mode applies color inversion */
+.dark .filament-forms-components-signature-pad-field canvas {
+    filter: invert(0) hue-rotate(0deg) !important; /* Remove any inversion */
+    /* You might also try: filter: none !important; */
+}
+
+/* 3. Ensure the pen color remains black (though penColor('#000000') should handle this) */
+/* This might not be strictly necessary but acts as a fallback */
+.dark .filament-forms-components-signature-pad-field {
+    /* If signature pad applies its own dark mode styles to the canvas */
+    /* For signature pad specifically, the pen color is often set via JS,
+       but if CSS is somehow interfering, this might help. */
+    --sig-pad-pen-color: #000000 !important; /* Example of overriding a CSS variable if used */
+    --sig-pad-background-color: #ffffff !important;
+}

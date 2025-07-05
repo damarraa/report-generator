@@ -9,3 +9,6 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Your custom overrides MUST be last to ensure they override Filament/Tailwind */
+/* @import 'filament-overrides.css'; Atau nama file CSS kustommu */

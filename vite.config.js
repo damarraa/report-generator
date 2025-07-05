@@ -9,6 +9,7 @@ export default defineConfig({
                 "resources/css/app.css",
                 "resources/js/app.js",
                 "resources/js/filament-geolocation.js",
+                "resources/js/map-picker.js"
             ],
             refresh: true,
         }),

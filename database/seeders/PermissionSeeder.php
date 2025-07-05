@@ -18,7 +18,10 @@ class PermissionSeeder extends Seeder
             'create users',
             'edit users',
             'delete users',
-            // tambahkan lainnya
+            'view bapp',
+            'create bapp',
+            'edit bapp',
+            'delete bapp',
         ];
 
         foreach ($permissions as $permission) {
